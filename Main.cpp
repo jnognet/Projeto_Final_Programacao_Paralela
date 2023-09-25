@@ -1,3 +1,2 @@
 #include "pch.h"
-
-#include "Credits.h"
+#include "Main.h"
