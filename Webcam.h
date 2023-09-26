@@ -3,8 +3,10 @@
 #include <opencv2/core.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 
-using namespace cv;
+#include <string>
+#include <iostream>
 
 namespace Webcam {
 
@@ -14,6 +16,7 @@ namespace Webcam {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace std;
 
 	/// <summary>
 	/// Summary for Webcam
@@ -35,18 +38,16 @@ namespace Webcam {
 		/// </summary>
 		~Webcam()
 		{
+			delete pframe;
 			if (components)
 			{
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Button^ button1;
-	private: System::Windows::Forms::PictureBox^ pictureBox1;
-
-
-	private: System::Windows::Forms::Button^ button3;
-	protected:
-
+	private: System::Windows::Forms::Button^ capturebutton;
+	private: System::Windows::Forms::PictureBox^ capturepicturebox;
+	private: System::Windows::Forms::Button^ savebutton;
+	private: cv::Mat* pframe;
 	private:
 		/// <summary>
 		/// Required designer variable.
@@ -60,83 +61,83 @@ namespace Webcam {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
-			this->button3 = (gcnew System::Windows::Forms::Button());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
+			this->capturebutton = (gcnew System::Windows::Forms::Button());
+			this->capturepicturebox = (gcnew System::Windows::Forms::PictureBox());
+			this->savebutton = (gcnew System::Windows::Forms::Button());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->capturepicturebox))->BeginInit();
 			this->SuspendLayout();
 			// 
-			// button1
+			// capturebutton
 			// 
-			this->button1->Location = System::Drawing::Point(78, 9);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(259, 68);
-			this->button1->TabIndex = 0;
-			this->button1->Text = L"Capture";
-			this->button1->UseVisualStyleBackColor = true;
-			this->button1->Click += gcnew System::EventHandler(this, &Webcam::button1_Click);
+			this->capturebutton->Location = System::Drawing::Point(78, 12);
+			this->capturebutton->Name = L"capturebutton";
+			this->capturebutton->Size = System::Drawing::Size(259, 68);
+			this->capturebutton->TabIndex = 0;
+			this->capturebutton->Text = L"Capture";
+			this->capturebutton->UseVisualStyleBackColor = true;
+			this->capturebutton->Click += gcnew System::EventHandler(this, &Webcam::capture_Click);
 			// 
-			// pictureBox1
+			// capturepicturebox
 			// 
-			this->pictureBox1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->pictureBox1->Location = System::Drawing::Point(44, 94);
-			this->pictureBox1->Name = L"pictureBox1";
-			this->pictureBox1->Size = System::Drawing::Size(328, 231);
-			this->pictureBox1->TabIndex = 1;
-			this->pictureBox1->TabStop = false;
+			this->capturepicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->capturepicturebox->Location = System::Drawing::Point(44, 94);
+			this->capturepicturebox->Name = L"capturepicturebox";
+			this->capturepicturebox->Size = System::Drawing::Size(328, 231);
+			this->capturepicturebox->TabIndex = 1;
+			this->capturepicturebox->TabStop = false;
 			// 
-			// button3
+			// savebutton
 			// 
-			this->button3->Location = System::Drawing::Point(78, 350);
-			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(259, 68);
-			this->button3->TabIndex = 4;
-			this->button3->Text = L"Save to File";
-			this->button3->UseVisualStyleBackColor = true;
-			this->button3->Visible = false;
-			this->button3->Click += gcnew System::EventHandler(this, &Webcam::button3_Click);
+			this->savebutton->Enabled = false;
+			this->savebutton->Location = System::Drawing::Point(78, 344);
+			this->savebutton->Name = L"savebutton";
+			this->savebutton->Size = System::Drawing::Size(259, 68);
+			this->savebutton->TabIndex = 4;
+			this->savebutton->Text = L"Save to File";
+			this->savebutton->UseVisualStyleBackColor = true;
+			this->savebutton->Click += gcnew System::EventHandler(this, &Webcam::save_Click);
 			// 
 			// Webcam
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(415, 435);
-			this->Controls->Add(this->button3);
-			this->Controls->Add(this->pictureBox1);
-			this->Controls->Add(this->button1);
+			this->ClientSize = System::Drawing::Size(415, 427);
+			this->Controls->Add(this->savebutton);
+			this->Controls->Add(this->capturepicturebox);
+			this->Controls->Add(this->capturebutton);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Webcam";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Webcam";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->capturepicturebox))->EndInit();
 			this->ResumeLayout(false);
 
 		}
 #pragma endregion
-		private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) 
-		{			
-			VideoCapture cap;
-			Mat frame;
+		private: System::Void capture_Click(System::Object^ sender, System::EventArgs^ e) 
+		{	
+			capturebutton->Enabled = false;
+			cv::VideoCapture cap;
+			cv::Mat frame;
 
 			int deviceID = 0; 
 			int apiID = cv::CAP_ANY;
 			cap.open(deviceID, apiID);
 			if (cap.isOpened())
 			{
-				cap.read((frame));
+				cap.read( frame );
 				if (! frame.empty())
 				{
-					System::Drawing::Graphics^ graphics = pictureBox1->CreateGraphics();
+					System::Drawing::Graphics^ graphics = capturepicturebox->CreateGraphics();
 					System::IntPtr ptr(frame.ptr());
 					System::Drawing::Bitmap^ b = gcnew System::Drawing::Bitmap(frame.cols, frame.rows, frame.step, System::Drawing::Imaging::PixelFormat::Format24bppRgb, ptr);
-					System::Drawing::RectangleF rect(0, 0, pictureBox1->Width, pictureBox1->Height);
+					System::Drawing::RectangleF rect(0, 0, capturepicturebox->Width, capturepicturebox->Height);
 					graphics->DrawImage(b, rect);
-					
-					b->Save("C:\\temp\\test.png", System::Drawing::Imaging::ImageFormat::Png);
-
-					button3->Visible = true;
+					pframe = new cv::Mat(frame.rows, frame.cols, frame.type());
+					*pframe = frame.clone();
+					savebutton->Enabled = true;
 				}
 			}
 			else 
@@ -144,14 +145,34 @@ namespace Webcam {
 				MessageBox::Show("Webcam error", "Error !", MessageBoxButtons::OK, MessageBoxIcon::Error);
 			}
 			frame.release();
-			cap.release();			
+			cap.release();
+			capturebutton->Enabled = true;
 		}
-	private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
-		/* System::Drawing::Bitmap^ bitmap = gcnew System::Drawing::Bitmap(pictureBox1->Width, pictureBox1->Height);
-		System::Drawing::Graphics^ graphics = System::Drawing::Graphics::FromImage(bitmap);
-		graphics->Clear(System::Drawing::Color::Transparent);
-		graphics->DrawImage(pictureBox1->Image, (bitmap->Width - pictureBox1->Image->Width) / 2, (bitmap->Height - pictureBox1->Image->Height) / 2);
-		bitmap->Save(L"C:\tmp\test.png", System::Drawing::Imaging::ImageFormat::Png); */
-	}
-};
+
+		void MarshalString(String^ s, string& os) {
+			using namespace Runtime::InteropServices;
+			const char* chars =
+				(const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+			os = chars;
+			Marshal::FreeHGlobal(IntPtr((void*)chars));
+		}
+
+		private: System::Void save_Click(System::Object^ sender, System::EventArgs^ e) 
+		{
+			savebutton->Enabled = false;			
+			SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
+			saveFileDialog->Filter = "Image files (.png) |*.png";
+			if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			{
+				std::string filename;
+				MarshalString(saveFileDialog->FileName, filename);
+				imwrite(filename, *pframe);
+			}
+			else
+			{
+				return;
+			}			
+			savebutton->Enabled = true;
+		}
+	};
 }

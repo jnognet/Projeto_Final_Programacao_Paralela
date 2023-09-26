@@ -64,6 +64,7 @@ namespace Main {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Main::typeid));
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->button3 = (gcnew System::Windows::Forms::Button());
@@ -81,7 +82,7 @@ namespace Main {
 			this->button1->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->button1->Location = System::Drawing::Point(32, 404);
 			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(898, 45);
+			this->button1->Size = System::Drawing::Size(771, 45);
 			this->button1->TabIndex = 0;
 			this->button1->Text = L"Créditos";
 			this->button1->UseVisualStyleBackColor = true;
@@ -93,7 +94,7 @@ namespace Main {
 			this->button2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->button2->Location = System::Drawing::Point(34, 340);
 			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(898, 53);
+			this->button2->Size = System::Drawing::Size(771, 53);
 			this->button2->TabIndex = 1;
 			this->button2->Text = L"Webcam";
 			this->button2->UseVisualStyleBackColor = true;
@@ -105,7 +106,7 @@ namespace Main {
 			this->button3->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->button3->Location = System::Drawing::Point(34, 141);
 			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(898, 53);
+			this->button3->Size = System::Drawing::Size(771, 53);
 			this->button3->TabIndex = 2;
 			this->button3->Text = L"Grayscale Filter";
 			this->button3->UseVisualStyleBackColor = true;
@@ -117,7 +118,7 @@ namespace Main {
 			this->button4->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->button4->Location = System::Drawing::Point(34, 205);
 			this->button4->Name = L"button4";
-			this->button4->Size = System::Drawing::Size(898, 53);
+			this->button4->Size = System::Drawing::Size(771, 53);
 			this->button4->TabIndex = 3;
 			this->button4->Text = L"Chroma Filter";
 			this->button4->UseVisualStyleBackColor = true;
@@ -128,7 +129,7 @@ namespace Main {
 			this->button5->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->button5->Location = System::Drawing::Point(34, 273);
 			this->button5->Name = L"button5";
-			this->button5->Size = System::Drawing::Size(898, 53);
+			this->button5->Size = System::Drawing::Size(771, 53);
 			this->button5->TabIndex = 4;
 			this->button5->Text = L"Gaussian Blur Filter";
 			this->button5->UseVisualStyleBackColor = true;
@@ -137,7 +138,7 @@ namespace Main {
 			// pictureBox1
 			// 
 			this->pictureBox1->ImageLocation = L"ufac.png";
-			this->pictureBox1->Location = System::Drawing::Point(427, 21);
+			this->pictureBox1->Location = System::Drawing::Point(365, 16);
 			this->pictureBox1->Name = L"pictureBox1";
 			this->pictureBox1->Size = System::Drawing::Size(98, 102);
 			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
@@ -147,7 +148,7 @@ namespace Main {
 			// pictureBox2
 			// 
 			this->pictureBox2->ImageLocation = L"motorola.png";
-			this->pictureBox2->Location = System::Drawing::Point(684, 32);
+			this->pictureBox2->Location = System::Drawing::Point(610, 27);
 			this->pictureBox2->Name = L"pictureBox2";
 			this->pictureBox2->Size = System::Drawing::Size(133, 91);
 			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
@@ -158,7 +159,7 @@ namespace Main {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(984, 468);
+			this->ClientSize = System::Drawing::Size(845, 468);
 			this->Controls->Add(this->pictureBox2);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->button5);
@@ -166,6 +167,7 @@ namespace Main {
 			this->Controls->Add(this->button3);
 			this->Controls->Add(this->button2);
 			this->Controls->Add(this->button1);
+			this->Icon = gcnew System::Drawing::Icon(L"icon1.ico");
 			this->Name = L"Main";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Projeto Final - Programação Paralela - Grupo 1 - PAVIC LAB/UFAC";
@@ -176,18 +178,18 @@ namespace Main {
 		}
 #pragma endregion
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		Credits::Credits^ credits = gcnew Credits::Credits;
-		credits->Show();
+		Credits::Credits^ credits = gcnew Credits::Credits;		
+		credits->ShowDialog();		
 	}
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
 		Webcam::Webcam^ webcam = gcnew Webcam::Webcam;
-		webcam->Show();
+		webcam->ShowDialog();
 	}
 	private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
 		GaussianBlur::GaussianBlur^ gaussianblur = gcnew GaussianBlur::GaussianBlur;
-		gaussianblur->Show();
+		gaussianblur->ShowDialog();
 	}
 };
 }

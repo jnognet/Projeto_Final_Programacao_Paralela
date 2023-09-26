@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 namespace GaussianBlur {
 
 	using namespace System;
@@ -34,12 +36,15 @@ namespace GaussianBlur {
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Button^ button1;
+	private: System::Windows::Forms::Button^ loadbutton;
 	protected:
-	private: System::Windows::Forms::PictureBox^ pictureBox1;
+
+	protected:
+	private: System::Windows::Forms::PictureBox^ capturepicturebox;
 	private: System::Windows::Forms::PictureBox^ pictureBox2;
 	private: System::Windows::Forms::Button^ button2;
-	private: System::Windows::Forms::Button^ button3;
+	private: System::Windows::Forms::Button^ savebutton;
+
 	private: System::Windows::Forms::Button^ button4;
 	private: System::Windows::Forms::Button^ button5;
 	private: System::Windows::Forms::Button^ button6;
@@ -58,36 +63,36 @@ namespace GaussianBlur {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
+			this->loadbutton = (gcnew System::Windows::Forms::Button());
+			this->capturepicturebox = (gcnew System::Windows::Forms::PictureBox());
 			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
 			this->button2 = (gcnew System::Windows::Forms::Button());
-			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->savebutton = (gcnew System::Windows::Forms::Button());
 			this->button4 = (gcnew System::Windows::Forms::Button());
 			this->button5 = (gcnew System::Windows::Forms::Button());
 			this->button6 = (gcnew System::Windows::Forms::Button());
 			this->button7 = (gcnew System::Windows::Forms::Button());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->capturepicturebox))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
 			this->SuspendLayout();
 			// 
-			// button1
+			// loadbutton
 			// 
-			this->button1->Location = System::Drawing::Point(137, 25);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(200, 50);
-			this->button1->TabIndex = 0;
-			this->button1->Text = L"Load";
-			this->button1->UseVisualStyleBackColor = true;
-			this->button1->Click += gcnew System::EventHandler(this, &GaussianBlur::button1_Click);
+			this->loadbutton->Location = System::Drawing::Point(126, 25);
+			this->loadbutton->Name = L"loadbutton";
+			this->loadbutton->Size = System::Drawing::Size(200, 50);
+			this->loadbutton->TabIndex = 0;
+			this->loadbutton->Text = L"Load";
+			this->loadbutton->UseVisualStyleBackColor = true;
+			this->loadbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::button1_Click);
 			// 
-			// pictureBox1
+			// capturepicturebox
 			// 
-			this->pictureBox1->Location = System::Drawing::Point(26, 100);
-			this->pictureBox1->Name = L"pictureBox1";
-			this->pictureBox1->Size = System::Drawing::Size(398, 310);
-			this->pictureBox1->TabIndex = 1;
-			this->pictureBox1->TabStop = false;
+			this->capturepicturebox->Location = System::Drawing::Point(26, 100);
+			this->capturepicturebox->Name = L"capturepicturebox";
+			this->capturepicturebox->Size = System::Drawing::Size(398, 310);
+			this->capturepicturebox->TabIndex = 1;
+			this->capturepicturebox->TabStop = false;
 			// 
 			// pictureBox2
 			// 
@@ -99,25 +104,26 @@ namespace GaussianBlur {
 			// 
 			// button2
 			// 
-			this->button2->Location = System::Drawing::Point(447, 100);
+			this->button2->Location = System::Drawing::Point(448, 116);
 			this->button2->Name = L"button2";
 			this->button2->Size = System::Drawing::Size(143, 42);
 			this->button2->TabIndex = 3;
 			this->button2->Text = L"Filter with CPU";
 			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &GaussianBlur::button2_Click);
 			// 
-			// button3
+			// savebutton
 			// 
-			this->button3->Location = System::Drawing::Point(707, 25);
-			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(200, 50);
-			this->button3->TabIndex = 4;
-			this->button3->Text = L"Save";
-			this->button3->UseVisualStyleBackColor = true;
+			this->savebutton->Location = System::Drawing::Point(702, 25);
+			this->savebutton->Name = L"savebutton";
+			this->savebutton->Size = System::Drawing::Size(200, 50);
+			this->savebutton->TabIndex = 4;
+			this->savebutton->Text = L"Save";
+			this->savebutton->UseVisualStyleBackColor = true;
 			// 
 			// button4
 			// 
-			this->button4->Location = System::Drawing::Point(447, 159);
+			this->button4->Location = System::Drawing::Point(448, 175);
 			this->button4->Name = L"button4";
 			this->button4->Size = System::Drawing::Size(143, 41);
 			this->button4->TabIndex = 5;
@@ -126,7 +132,7 @@ namespace GaussianBlur {
 			// 
 			// button5
 			// 
-			this->button5->Location = System::Drawing::Point(447, 219);
+			this->button5->Location = System::Drawing::Point(448, 235);
 			this->button5->Name = L"button5";
 			this->button5->Size = System::Drawing::Size(143, 41);
 			this->button5->TabIndex = 6;
@@ -135,7 +141,7 @@ namespace GaussianBlur {
 			// 
 			// button6
 			// 
-			this->button6->Location = System::Drawing::Point(447, 280);
+			this->button6->Location = System::Drawing::Point(448, 296);
 			this->button6->Name = L"button6";
 			this->button6->Size = System::Drawing::Size(143, 41);
 			this->button6->TabIndex = 7;
@@ -144,7 +150,7 @@ namespace GaussianBlur {
 			// 
 			// button7
 			// 
-			this->button7->Location = System::Drawing::Point(447, 338);
+			this->button7->Location = System::Drawing::Point(448, 354);
 			this->button7->Name = L"button7";
 			this->button7->Size = System::Drawing::Size(143, 41);
 			this->button7->TabIndex = 8;
@@ -160,18 +166,19 @@ namespace GaussianBlur {
 			this->Controls->Add(this->button6);
 			this->Controls->Add(this->button5);
 			this->Controls->Add(this->button4);
-			this->Controls->Add(this->button3);
+			this->Controls->Add(this->savebutton);
 			this->Controls->Add(this->button2);
 			this->Controls->Add(this->pictureBox2);
-			this->Controls->Add(this->pictureBox1);
-			this->Controls->Add(this->button1);
+			this->Controls->Add(this->capturepicturebox);
+			this->Controls->Add(this->loadbutton);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"GaussianBlur";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"Image Filter GaussianBlur";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
+			this->Text = L"Image GaussianBlur Filter";
+			this->Load += gcnew System::EventHandler(this, &GaussianBlur::GaussianBlur_Load);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->capturepicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
 			this->ResumeLayout(false);
 
@@ -179,5 +186,13 @@ namespace GaussianBlur {
 #pragma endregion
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
-	};
+	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+		auto start = std::chrono::high_resolution_clock::now();
+		
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+	}
+private: System::Void GaussianBlur_Load(System::Object^ sender, System::EventArgs^ e) {
+}
+};
 }
