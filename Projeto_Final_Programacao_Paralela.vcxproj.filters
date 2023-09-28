@@ -35,7 +35,7 @@
     <ClInclude Include="Webcam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GaussianBlur.h">
+    <ClInclude Include="GrayScale.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -58,7 +58,7 @@
     <ClCompile Include="Webcam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GaussianBlur.cpp">
+    <ClCompile Include="GrayScale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

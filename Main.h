@@ -2,7 +2,7 @@
 
 #include "Credits.h"
 #include "Webcam.h"
-#include "GaussianBlur.h"
+#include "GrayScale.h"
 
 namespace Main {
 
@@ -38,13 +38,20 @@ namespace Main {
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Button^ button1;
-	private: System::Windows::Forms::Button^ button2;
-	private: System::Windows::Forms::Button^ button3;
-	private: System::Windows::Forms::Button^ button4;
-	private: System::Windows::Forms::Button^ button5;
-	private: System::Windows::Forms::PictureBox^ pictureBox1;
-	private: System::Windows::Forms::PictureBox^ pictureBox2;
+	private: System::Windows::Forms::Button^ creditsbutton;
+	private: System::Windows::Forms::Button^ webcambutton;
+	private: System::Windows::Forms::Button^ grayscalebutton;
+	protected:
+
+	private: System::Windows::Forms::Button^ sobelbutton;
+
+	private: System::Windows::Forms::Button^ gaussianbutton;
+
+	private: System::Windows::Forms::PictureBox^ ufacpicturebox;
+
+	private: System::Windows::Forms::PictureBox^ motorolapicturebox;
+	private: System::Windows::Forms::PictureBox^ pavicpicturebox;
+
 	protected:
 
 	protected:
@@ -65,131 +72,158 @@ namespace Main {
 		void InitializeComponent(void)
 		{
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Main::typeid));
-			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->button2 = (gcnew System::Windows::Forms::Button());
-			this->button3 = (gcnew System::Windows::Forms::Button());
-			this->button4 = (gcnew System::Windows::Forms::Button());
-			this->button5 = (gcnew System::Windows::Forms::Button());
-			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
-			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
+			this->creditsbutton = (gcnew System::Windows::Forms::Button());
+			this->webcambutton = (gcnew System::Windows::Forms::Button());
+			this->grayscalebutton = (gcnew System::Windows::Forms::Button());
+			this->sobelbutton = (gcnew System::Windows::Forms::Button());
+			this->gaussianbutton = (gcnew System::Windows::Forms::Button());
+			this->ufacpicturebox = (gcnew System::Windows::Forms::PictureBox());
+			this->motorolapicturebox = (gcnew System::Windows::Forms::PictureBox());
+			this->pavicpicturebox = (gcnew System::Windows::Forms::PictureBox());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ufacpicturebox))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->motorolapicturebox))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pavicpicturebox))->BeginInit();
 			this->SuspendLayout();
 			// 
-			// button1
+			// creditsbutton
 			// 
-			this->button1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->button1->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->button1->Location = System::Drawing::Point(32, 404);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(771, 45);
-			this->button1->TabIndex = 0;
-			this->button1->Text = L"Créditos";
-			this->button1->UseVisualStyleBackColor = true;
-			this->button1->Click += gcnew System::EventHandler(this, &Main::button1_Click);
+			this->creditsbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->creditsbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->creditsbutton->Location = System::Drawing::Point(32, 404);
+			this->creditsbutton->Name = L"creditsbutton";
+			this->creditsbutton->Size = System::Drawing::Size(771, 45);
+			this->creditsbutton->TabIndex = 5;
+			this->creditsbutton->Text = L"Créditos";
+			this->creditsbutton->UseVisualStyleBackColor = true;
+			this->creditsbutton->Click += gcnew System::EventHandler(this, &Main::creaditsbutton_Click);
 			// 
-			// button2
+			// webcambutton
 			// 
-			this->button2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->button2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->button2->Location = System::Drawing::Point(34, 340);
-			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(771, 53);
-			this->button2->TabIndex = 1;
-			this->button2->Text = L"Webcam";
-			this->button2->UseVisualStyleBackColor = true;
-			this->button2->Click += gcnew System::EventHandler(this, &Main::button2_Click);
+			this->webcambutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->webcambutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->webcambutton->Location = System::Drawing::Point(34, 340);
+			this->webcambutton->Name = L"webcambutton";
+			this->webcambutton->Size = System::Drawing::Size(771, 53);
+			this->webcambutton->TabIndex = 4;
+			this->webcambutton->Text = L"Webcam";
+			this->webcambutton->UseVisualStyleBackColor = true;
+			this->webcambutton->Click += gcnew System::EventHandler(this, &Main::webcambutton_Click);
 			// 
-			// button3
+			// grayscalebutton
 			// 
-			this->button3->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->button3->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->button3->Location = System::Drawing::Point(34, 141);
-			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(771, 53);
-			this->button3->TabIndex = 2;
-			this->button3->Text = L"Grayscale Filter";
-			this->button3->UseVisualStyleBackColor = true;
-			this->button3->Click += gcnew System::EventHandler(this, &Main::button3_Click);
+			this->grayscalebutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->grayscalebutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->grayscalebutton->Location = System::Drawing::Point(34, 141);
+			this->grayscalebutton->Name = L"grayscalebutton";
+			this->grayscalebutton->Size = System::Drawing::Size(771, 53);
+			this->grayscalebutton->TabIndex = 0;
+			this->grayscalebutton->Text = L"Grayscale Filter";
+			this->grayscalebutton->UseVisualStyleBackColor = true;
+			this->grayscalebutton->Click += gcnew System::EventHandler(this, &Main::grayscalebutton_Click);
 			// 
-			// button4
+			// sobelbutton
 			// 
-			this->button4->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->button4->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->button4->Location = System::Drawing::Point(34, 205);
-			this->button4->Name = L"button4";
-			this->button4->Size = System::Drawing::Size(771, 53);
-			this->button4->TabIndex = 3;
-			this->button4->Text = L"Chroma Filter";
-			this->button4->UseVisualStyleBackColor = true;
+			this->sobelbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->sobelbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->sobelbutton->Location = System::Drawing::Point(34, 207);
+			this->sobelbutton->Name = L"sobelbutton";
+			this->sobelbutton->Size = System::Drawing::Size(771, 53);
+			this->sobelbutton->TabIndex = 1;
+			this->sobelbutton->Text = L"Sobel Filter";
+			this->sobelbutton->UseVisualStyleBackColor = true;
+			this->sobelbutton->Click += gcnew System::EventHandler(this, &Main::sobelbutton_Click);
 			// 
-			// button5
+			// gaussianbutton
 			// 
-			this->button5->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->button5->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->button5->Location = System::Drawing::Point(34, 273);
-			this->button5->Name = L"button5";
-			this->button5->Size = System::Drawing::Size(771, 53);
-			this->button5->TabIndex = 4;
-			this->button5->Text = L"Gaussian Blur Filter";
-			this->button5->UseVisualStyleBackColor = true;
-			this->button5->Click += gcnew System::EventHandler(this, &Main::button5_Click);
+			this->gaussianbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->gaussianbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->gaussianbutton->Location = System::Drawing::Point(34, 274);
+			this->gaussianbutton->Name = L"gaussianbutton";
+			this->gaussianbutton->Size = System::Drawing::Size(771, 53);
+			this->gaussianbutton->TabIndex = 3;
+			this->gaussianbutton->Text = L"Gaussian Blur Filter";
+			this->gaussianbutton->UseVisualStyleBackColor = true;
+			this->gaussianbutton->Click += gcnew System::EventHandler(this, &Main::gaussianbutton_Click);
 			// 
-			// pictureBox1
+			// ufacpicturebox
 			// 
-			this->pictureBox1->ImageLocation = L"ufac.png";
-			this->pictureBox1->Location = System::Drawing::Point(365, 16);
-			this->pictureBox1->Name = L"pictureBox1";
-			this->pictureBox1->Size = System::Drawing::Size(98, 102);
-			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
-			this->pictureBox1->TabIndex = 5;
-			this->pictureBox1->TabStop = false;
+			this->ufacpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->ufacpicturebox->Cursor = System::Windows::Forms::Cursors::Default;
+			this->ufacpicturebox->ImageLocation = L"ufac.png";
+			this->ufacpicturebox->Location = System::Drawing::Point(105, 24);
+			this->ufacpicturebox->Name = L"ufacpicturebox";
+			this->ufacpicturebox->Size = System::Drawing::Size(98, 102);
+			this->ufacpicturebox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+			this->ufacpicturebox->TabIndex = 5;
+			this->ufacpicturebox->TabStop = false;
 			// 
-			// pictureBox2
+			// motorolapicturebox
 			// 
-			this->pictureBox2->ImageLocation = L"motorola.png";
-			this->pictureBox2->Location = System::Drawing::Point(610, 27);
-			this->pictureBox2->Name = L"pictureBox2";
-			this->pictureBox2->Size = System::Drawing::Size(133, 91);
-			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
-			this->pictureBox2->TabIndex = 6;
-			this->pictureBox2->TabStop = false;
+			this->motorolapicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->motorolapicturebox->ImageLocation = L"motorola.png";
+			this->motorolapicturebox->Location = System::Drawing::Point(609, 31);
+			this->motorolapicturebox->Name = L"motorolapicturebox";
+			this->motorolapicturebox->Size = System::Drawing::Size(148, 95);
+			this->motorolapicturebox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+			this->motorolapicturebox->TabIndex = 6;
+			this->motorolapicturebox->TabStop = false;
+			// 
+			// pavicpicturebox
+			// 
+			this->pavicpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->pavicpicturebox->ImageLocation = L"pavic.png";
+			this->pavicpicturebox->Location = System::Drawing::Point(291, 31);
+			this->pavicpicturebox->Name = L"pavicpicturebox";
+			this->pavicpicturebox->Size = System::Drawing::Size(241, 95);
+			this->pavicpicturebox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+			this->pavicpicturebox->TabIndex = 7;
+			this->pavicpicturebox->TabStop = false;
 			// 
 			// Main
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(845, 468);
-			this->Controls->Add(this->pictureBox2);
-			this->Controls->Add(this->pictureBox1);
-			this->Controls->Add(this->button5);
-			this->Controls->Add(this->button4);
-			this->Controls->Add(this->button3);
-			this->Controls->Add(this->button2);
-			this->Controls->Add(this->button1);
-			this->Icon = gcnew System::Drawing::Icon(L"icon1.ico");
+			this->Controls->Add(this->pavicpicturebox);
+			this->Controls->Add(this->motorolapicturebox);
+			this->Controls->Add(this->ufacpicturebox);
+			this->Controls->Add(this->gaussianbutton);
+			this->Controls->Add(this->sobelbutton);
+			this->Controls->Add(this->grayscalebutton);
+			this->Controls->Add(this->webcambutton);
+			this->Controls->Add(this->creditsbutton);
 			this->Name = L"Main";
+			this->Icon = gcnew System::Drawing::Icon(L"main.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"Projeto Final - Programação Paralela - Grupo 1 - PAVIC LAB/UFAC";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
+			this->Text = L"Projeto Final - Programação Paralela - Grupo 1 - PAVIC LAB/UFAC - v1.0";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ufacpicturebox))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->motorolapicturebox))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pavicpicturebox))->EndInit();
 			this->ResumeLayout(false);
 
 		}
-#pragma endregion
-	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		Credits::Credits^ credits = gcnew Credits::Credits;		
-		credits->ShowDialog();		
+#pragma endregion	
+	
+	private: System::Void grayscalebutton_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
+		GrayScale::GrayScale^ grayscale = gcnew GrayScale::GrayScale;
+		grayscale->ShowDialog();
 	}
-	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+	private: System::Void sobelbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
+	}
+	private: System::Void gaussianbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
+	}
+	private: System::Void webcambutton_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
 		Webcam::Webcam^ webcam = gcnew Webcam::Webcam;
 		webcam->ShowDialog();
 	}
-	private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
-	}
-	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
-		GaussianBlur::GaussianBlur^ gaussianblur = gcnew GaussianBlur::GaussianBlur;
-		gaussianblur->ShowDialog();
+	private: System::Void creaditsbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
+		Credits::Credits^ credits = gcnew Credits::Credits;
+		credits->ShowDialog();
 	}
 };
 }

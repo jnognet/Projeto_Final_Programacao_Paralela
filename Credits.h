@@ -55,6 +55,7 @@ namespace Credits {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Credits::typeid));
 			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
 			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
@@ -80,7 +81,7 @@ namespace Credits {
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(148, 95);
+			this->label5->Location = System::Drawing::Point(164, 95);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(126, 13);
 			this->label5->TabIndex = 4;
@@ -89,7 +90,7 @@ namespace Credits {
 			// label4
 			// 
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(105, 35);
+			this->label4->Location = System::Drawing::Point(121, 35);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(230, 13);
 			this->label4->TabIndex = 3;
@@ -98,7 +99,7 @@ namespace Credits {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(105, 160);
+			this->label3->Location = System::Drawing::Point(121, 160);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(233, 13);
 			this->label3->TabIndex = 2;
@@ -107,7 +108,7 @@ namespace Credits {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(100, 65);
+			this->label2->Location = System::Drawing::Point(116, 65);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(238, 13);
 			this->label2->TabIndex = 1;
@@ -116,7 +117,7 @@ namespace Credits {
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(101, 124);
+			this->label1->Location = System::Drawing::Point(117, 124);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(248, 13);
 			this->label1->TabIndex = 0;
@@ -129,6 +130,7 @@ namespace Credits {
 			this->ClientSize = System::Drawing::Size(504, 231);
 			this->Controls->Add(this->groupBox1);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->Icon = gcnew System::Drawing::Icon(L"credits.ico");
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Credits";

@@ -109,6 +109,7 @@ namespace Webcam {
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Webcam";
+			this->Icon = gcnew System::Drawing::Icon(L"webcam.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Webcam";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->capturepicturebox))->EndInit();
@@ -168,10 +169,6 @@ namespace Webcam {
 				MarshalString(saveFileDialog->FileName, filename);
 				imwrite(filename, *pframe);
 			}
-			else
-			{
-				return;
-			}			
 			savebutton->Enabled = true;
 		}
 	};

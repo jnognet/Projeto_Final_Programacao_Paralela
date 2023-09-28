@@ -139,7 +139,7 @@
     <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GaussianBlur.h">
+    <ClInclude Include="GrayScale.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="Main.h">
@@ -156,7 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="GaussianBlur.cpp" />
+    <ClCompile Include="GrayScale.cpp" />
     <ClCompile Include="Projeto_Final_Programacao_Paralela.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Credits.cpp" />
@@ -179,8 +179,8 @@
     <EmbeddedResource Include="Credits.resx">
       <DependentUpon>Credits.h</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GaussianBlur.resx">
-      <DependentUpon>GaussianBlur.h</DependentUpon>
+    <EmbeddedResource Include="GrayScale.resx">
+      <DependentUpon>GrayScale.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.h</DependentUpon>
