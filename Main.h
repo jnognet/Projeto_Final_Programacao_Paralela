@@ -71,7 +71,6 @@ namespace Main {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Main::typeid));
 			this->creditsbutton = (gcnew System::Windows::Forms::Button());
 			this->webcambutton = (gcnew System::Windows::Forms::Button());
 			this->grayscalebutton = (gcnew System::Windows::Forms::Button());
@@ -147,6 +146,7 @@ namespace Main {
 			// 
 			// ufacpicturebox
 			// 
+			this->ufacpicturebox->Anchor = System::Windows::Forms::AnchorStyles::Left;
 			this->ufacpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
 			this->ufacpicturebox->Cursor = System::Windows::Forms::Cursors::Default;
 			this->ufacpicturebox->ImageLocation = L"ufac.png";
@@ -159,6 +159,7 @@ namespace Main {
 			// 
 			// motorolapicturebox
 			// 
+			this->motorolapicturebox->Anchor = System::Windows::Forms::AnchorStyles::Right;
 			this->motorolapicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
 			this->motorolapicturebox->ImageLocation = L"motorola.png";
 			this->motorolapicturebox->Location = System::Drawing::Point(609, 31);
@@ -170,6 +171,7 @@ namespace Main {
 			// 
 			// pavicpicturebox
 			// 
+			this->pavicpicturebox->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->pavicpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
 			this->pavicpicturebox->ImageLocation = L"pavic.png";
 			this->pavicpicturebox->Location = System::Drawing::Point(291, 31);
@@ -192,6 +194,7 @@ namespace Main {
 			this->Controls->Add(this->grayscalebutton);
 			this->Controls->Add(this->webcambutton);
 			this->Controls->Add(this->creditsbutton);
+			this->MinimumSize = System::Drawing::Size(861, 507);
 			this->Name = L"Main";
 			this->Icon = gcnew System::Drawing::Icon(L"main.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;

@@ -208,6 +208,7 @@ namespace GrayScale {
 			this->MinimizeBox = false;
 			this->Name = L"GrayScale";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
+			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			this->Text = L"GrayScale Filter";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
@@ -236,6 +237,14 @@ namespace GrayScale {
 			}		
 			loadbutton->Enabled = true;
 		}
+		private: System::Void disableFilters()
+		{
+			filtercpubutton->Enabled = false;
+			filtercpumultithreadbutton->Enabled = false;
+			filtercudabutton->Enabled = false;
+			filterhalidecpubutton->Enabled = false;
+			filterhalidegpubutton->Enabled = false;
+		}
 
 		private: System::Void enableFilters()
 		{
@@ -248,10 +257,11 @@ namespace GrayScale {
 
 		private: System::Void filtercpubutton_Click(System::Object^ sender, System::EventArgs^ e) 
 		{
-			Bitmap^ bmp = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			disableFilters();
+			std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+			Bitmap^ bmp = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());			
 			Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
 			output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
-			std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 			for (int x = 0; x < bmp->Width; x++) {
 				for (int y = 0; y < bmp->Height; y++) {
 					Color pixelsrc = bmp->GetPixel(x, y);
@@ -259,7 +269,7 @@ namespace GrayScale {
 					Color c = Color::FromArgb(value, value, value);
 					output->SetPixel(x, y, c);
 				}
-			} 
+			}
 			outputpicturebox->Image = output;
 			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
@@ -267,27 +277,28 @@ namespace GrayScale {
 			textBox->SelectionStart = textBox->Text->Length;
 			textBox->ScrollToCaret();
 			savebutton->Enabled = true;
+			enableFilters();
 		}
 
 		private: System::Void savebutton_Click(System::Object^ sender, System::EventArgs^ e) {
 			savebutton->Enabled = false;
-			/* 
-			OpenFileDialog^ openFileDialog = gcnew OpenFileDialog();
-				openFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
-				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
-				"Portable Network Graphic (*.png)|*.png";
-			if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
+				saveFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;|" +
+				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg";
+			if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
+				Bitmap^ bmp = dynamic_cast<Bitmap^>(outputpicturebox->Image->Clone());			
+				bmp->Save(saveFileDialog->FileName, Imaging::ImageFormat::Jpeg);
 				outputpicturebox->Image = nullptr;
+				textBox->Text = textBox->Text + "File saved: " + saveFileDialog->FileName + ".\r\n";
+				textBox->SelectionStart = textBox->Text->Length;
+				textBox->ScrollToCaret();
+			} 
+			else 
+			{
+				savebutton->Enabled = true;
 			}
-			*/
-			Bitmap^ bmp = dynamic_cast<Bitmap^>(outputpicturebox->Image->Clone());			
-			bmp->Save("c:\\temp\\teste.png", Imaging::ImageFormat::Jpeg); 
 
-			outputpicturebox->Image = nullptr;
-			textBox->Text = textBox->Text + "File saved.\r\n";
-			textBox->SelectionStart = textBox->Text->Length;
-			textBox->ScrollToCaret();
 		}
 	};
 }
