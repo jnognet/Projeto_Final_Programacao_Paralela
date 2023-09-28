@@ -6,11 +6,6 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
-#define STB_IMAGE_IMPLEMENTATION    
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 namespace GrayScale {
 
 	using namespace System;
@@ -137,6 +132,7 @@ namespace GrayScale {
 			this->savebutton->TabIndex = 7;
 			this->savebutton->Text = L"Save";
 			this->savebutton->UseVisualStyleBackColor = true;
+			this->savebutton->Click += gcnew System::EventHandler(this, &GrayScale::savebutton_Click);
 			// 
 			// filtercpubutton
 			// 
@@ -224,6 +220,7 @@ namespace GrayScale {
 		private: System::Void loadbutton_Click(System::Object^ sender, System::EventArgs^ e) 
 		{
 			loadbutton->Enabled = false;
+			savebutton->Enabled = false;
 			OpenFileDialog^ openFileDialog = gcnew OpenFileDialog();
 			openFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
 				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
@@ -231,8 +228,9 @@ namespace GrayScale {
 			if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				Bitmap^ image = gcnew Bitmap(openFileDialog->FileName);
-				inputpicturebox->Image = image;
+				inputpicturebox->Image = image;				
 				if (inputpicturebox->Image != nullptr) {
+					outputpicturebox->Image = nullptr;
 					enableFilters();
 				}
 			}		
@@ -250,47 +248,46 @@ namespace GrayScale {
 
 		private: System::Void filtercpubutton_Click(System::Object^ sender, System::EventArgs^ e) 
 		{
-			if (inputpicturebox->Image != nullptr) {			
-				String^ tempFilePath = "temp_image.jpg";
-				inputpicturebox->Image->Save(tempFilePath, System::Drawing::Imaging::ImageFormat::Jpeg);					
-				int width, height, channels;
-				unsigned char* img = stbi_load("temp_image.jpg", &width, &height, &channels, 0);
-				if (img != nullptr) {
-
-					int gray_channels = channels == 4 ? 2 : 1;
-					size_t gray_img_size = width * height * gray_channels;
-					unsigned char* gray_img = (unsigned char*) malloc(gray_img_size);
-
-					if (gray_img != NULL) {
-						std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-						for (int i = 0; i < gray_img_size; i++) {
-							*(gray_img + i) = (0.299 * *(img + (i*channels)    )) +
-											  (0.587 * *(img + (i*channels) + 1)) + 
-											  (0.114 * *(img + (i*channels) + 2));
-							if (gray_channels == 2) {
-								*(gray_img + i + 1) =  *(img + (i*channels) + 3);
-							}
-						}
-						std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-						std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-						textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
-						textBox->SelectionStart = textBox->Text->Length;
-						textBox->ScrollToCaret();
-						stbi_write_jpg("blue_image.jpg", width, height, gray_channels, gray_img, 100);
-						stbi_image_free(img);
-						outputpicturebox->Image = Image::FromFile("blue_image.jpg");
-						System::IO::File::Delete(tempFilePath);
-					}					
+			Bitmap^ bmp = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
+			output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
+			std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+			for (int x = 0; x < bmp->Width; x++) {
+				for (int y = 0; y < bmp->Height; y++) {
+					Color pixelsrc = bmp->GetPixel(x, y);
+					int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
+					Color c = Color::FromArgb(value, value, value);
+					output->SetPixel(x, y, c);
 				}
-				else 
-				{
-					MessageBox::Show("Failed to load image with stbi", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
-				}
-			}
-			else 
+			} 
+			outputpicturebox->Image = output;
+			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+			textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
+			textBox->SelectionStart = textBox->Text->Length;
+			textBox->ScrollToCaret();
+			savebutton->Enabled = true;
+		}
+
+		private: System::Void savebutton_Click(System::Object^ sender, System::EventArgs^ e) {
+			savebutton->Enabled = false;
+			/* 
+			OpenFileDialog^ openFileDialog = gcnew OpenFileDialog();
+				openFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
+				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+				"Portable Network Graphic (*.png)|*.png";
+			if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
-				MessageBox::Show("No image loaded in the input image box", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+				outputpicturebox->Image = nullptr;
 			}
+			*/
+			Bitmap^ bmp = dynamic_cast<Bitmap^>(outputpicturebox->Image->Clone());			
+			bmp->Save("c:\\temp\\teste.png", Imaging::ImageFormat::Jpeg); 
+
+			outputpicturebox->Image = nullptr;
+			textBox->Text = textBox->Text + "File saved.\r\n";
+			textBox->SelectionStart = textBox->Text->Length;
+			textBox->ScrollToCaret();
 		}
 	};
 }
