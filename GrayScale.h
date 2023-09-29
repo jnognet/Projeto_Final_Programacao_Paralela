@@ -5,6 +5,7 @@
 #include <chrono>
 #include <stdio.h> 
 #include <stdlib.h>
+#include <thread>
 
 namespace GrayScale {
 
@@ -16,6 +17,14 @@ namespace GrayScale {
 	using namespace System::Drawing;
 	using namespace std;
 
+	typedef struct Pixel {
+		unsigned char R;
+		unsigned char G;
+		unsigned char B;
+	} Pixel_t;
+
+	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size);
+			
 	/// <summary>
 	/// Summary for GrayScale
 	/// </summary>
@@ -56,6 +65,13 @@ namespace GrayScale {
 	private: System::Windows::Forms::Button^ loadbutton;	
 	private: System::Windows::Forms::TextBox^ textBox;
 
+
+
+
+
+
+
+
 	private:
 		/// <summary>
 		/// Required designer variable.
@@ -86,7 +102,7 @@ namespace GrayScale {
 			// filterhalidegpubutton
 			// 
 			this->filterhalidegpubutton->Enabled = false;
-			this->filterhalidegpubutton->Location = System::Drawing::Point(445, 340);
+			this->filterhalidegpubutton->Location = System::Drawing::Point(430, 324);
 			this->filterhalidegpubutton->Name = L"filterhalidegpubutton";
 			this->filterhalidegpubutton->Size = System::Drawing::Size(143, 41);
 			this->filterhalidegpubutton->TabIndex = 6;
@@ -96,7 +112,7 @@ namespace GrayScale {
 			// filterhalidecpubutton
 			// 
 			this->filterhalidecpubutton->Enabled = false;
-			this->filterhalidecpubutton->Location = System::Drawing::Point(445, 282);
+			this->filterhalidecpubutton->Location = System::Drawing::Point(430, 266);
 			this->filterhalidecpubutton->Name = L"filterhalidecpubutton";
 			this->filterhalidecpubutton->Size = System::Drawing::Size(143, 41);
 			this->filterhalidecpubutton->TabIndex = 5;
@@ -106,7 +122,7 @@ namespace GrayScale {
 			// filtercudabutton
 			// 
 			this->filtercudabutton->Enabled = false;
-			this->filtercudabutton->Location = System::Drawing::Point(445, 221);
+			this->filtercudabutton->Location = System::Drawing::Point(430, 205);
 			this->filtercudabutton->Name = L"filtercudabutton";
 			this->filtercudabutton->Size = System::Drawing::Size(143, 41);
 			this->filtercudabutton->TabIndex = 4;
@@ -116,17 +132,18 @@ namespace GrayScale {
 			// filtercpumultithreadbutton
 			// 
 			this->filtercpumultithreadbutton->Enabled = false;
-			this->filtercpumultithreadbutton->Location = System::Drawing::Point(445, 161);
+			this->filtercpumultithreadbutton->Location = System::Drawing::Point(430, 145);
 			this->filtercpumultithreadbutton->Name = L"filtercpumultithreadbutton";
 			this->filtercpumultithreadbutton->Size = System::Drawing::Size(143, 41);
 			this->filtercpumultithreadbutton->TabIndex = 3;
 			this->filtercpumultithreadbutton->Text = L"Filter with CPU (multithread)";
 			this->filtercpumultithreadbutton->UseVisualStyleBackColor = true;
+			this->filtercpumultithreadbutton->Click += gcnew System::EventHandler(this, &GrayScale::filtercpumultithreadbutton_Click);
 			// 
 			// savebutton
 			// 
 			this->savebutton->Enabled = false;
-			this->savebutton->Location = System::Drawing::Point(701, 18);
+			this->savebutton->Location = System::Drawing::Point(687, 9);
 			this->savebutton->Name = L"savebutton";
 			this->savebutton->Size = System::Drawing::Size(200, 50);
 			this->savebutton->TabIndex = 7;
@@ -137,7 +154,7 @@ namespace GrayScale {
 			// filtercpubutton
 			// 
 			this->filtercpubutton->Enabled = false;
-			this->filtercpubutton->Location = System::Drawing::Point(445, 102);
+			this->filtercpubutton->Location = System::Drawing::Point(430, 86);
 			this->filtercpubutton->Name = L"filtercpubutton";
 			this->filtercpubutton->Size = System::Drawing::Size(143, 42);
 			this->filtercpubutton->TabIndex = 2;
@@ -149,7 +166,7 @@ namespace GrayScale {
 			// 
 			this->outputpicturebox->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
 			this->outputpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-			this->outputpicturebox->Location = System::Drawing::Point(606, 86);
+			this->outputpicturebox->Location = System::Drawing::Point(592, 73);
 			this->outputpicturebox->Name = L"outputpicturebox";
 			this->outputpicturebox->Size = System::Drawing::Size(396, 309);
 			this->outputpicturebox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
@@ -160,7 +177,7 @@ namespace GrayScale {
 			// 
 			this->inputpicturebox->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
 			this->inputpicturebox->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-			this->inputpicturebox->Location = System::Drawing::Point(25, 86);
+			this->inputpicturebox->Location = System::Drawing::Point(11, 73);
 			this->inputpicturebox->Name = L"inputpicturebox";
 			this->inputpicturebox->Size = System::Drawing::Size(398, 310);
 			this->inputpicturebox->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
@@ -169,7 +186,7 @@ namespace GrayScale {
 			// 
 			// loadbutton
 			// 
-			this->loadbutton->Location = System::Drawing::Point(124, 18);
+			this->loadbutton->Location = System::Drawing::Point(110, 9);
 			this->loadbutton->Name = L"loadbutton";
 			this->loadbutton->Size = System::Drawing::Size(200, 50);
 			this->loadbutton->TabIndex = 1;
@@ -180,19 +197,19 @@ namespace GrayScale {
 			// textBox
 			// 
 			this->textBox->AcceptsReturn = true;
-			this->textBox->Location = System::Drawing::Point(25, 416);
+			this->textBox->Location = System::Drawing::Point(11, 389);
 			this->textBox->Multiline = true;
 			this->textBox->Name = L"textBox";
 			this->textBox->ReadOnly = true;
 			this->textBox->ScrollBars = System::Windows::Forms::ScrollBars::Both;
-			this->textBox->Size = System::Drawing::Size(977, 63);
+			this->textBox->Size = System::Drawing::Size(977, 90);
 			this->textBox->TabIndex = 8;
 			// 
 			// GrayScale
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1027, 491);
+			this->ClientSize = System::Drawing::Size(1000, 491);
 			this->Controls->Add(this->textBox);
 			this->Controls->Add(this->filterhalidegpubutton);
 			this->Controls->Add(this->filterhalidecpubutton);
@@ -208,7 +225,6 @@ namespace GrayScale {
 			this->MinimizeBox = false;
 			this->Name = L"GrayScale";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			this->Text = L"GrayScale Filter";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
@@ -258,25 +274,31 @@ namespace GrayScale {
 		private: System::Void filtercpubutton_Click(System::Object^ sender, System::EventArgs^ e) 
 		{
 			disableFilters();
-			std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-			Bitmap^ bmp = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());			
-			Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
-			output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
-			for (int x = 0; x < bmp->Width; x++) {
-				for (int y = 0; y < bmp->Height; y++) {
-					Color pixelsrc = bmp->GetPixel(x, y);
-					int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
-					Color c = Color::FromArgb(value, value, value);
-					output->SetPixel(x, y, c);
-				}
+			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed) {
+				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
 			}
-			outputpicturebox->Image = output;
-			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-			textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
-			textBox->SelectionStart = textBox->Text->Length;
-			textBox->ScrollToCaret();
-			savebutton->Enabled = true;
+			else
+			{
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
+				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
+				for (int x = 0; x < input->Width; x++) {
+					for (int y = 0; y < input->Height; y++) {
+						Color pixelsrc = input->GetPixel(x, y);
+						int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
+						Color c = Color::FromArgb(value, value, value);
+						output->SetPixel(x, y, c);
+					}
+				}
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+				outputpicturebox->Image = output;
+				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+				textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
+				textBox->SelectionStart = textBox->Text->Length;
+				textBox->ScrollToCaret();
+				savebutton->Enabled = true;
+			}
 			enableFilters();
 		}
 
@@ -300,5 +322,86 @@ namespace GrayScale {
 			}
 
 		}
+
+		private: System::Void filtercpumultithreadbutton_Click(System::Object^ sender, System::EventArgs^ e) {
+			disableFilters();
+			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
+			{
+				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+			}
+			else
+			{
+				Pixel_t* image = (Pixel_t*)malloc(input->Width * input->Height * sizeof(Pixel_t));
+				if (image != NULL) {
+					int pointer = 0;
+					for (int y = 0; y < input->Height; y++) {
+						for (int x = 0; x < input->Width; x++) {
+							Color inpixel = input->GetPixel(x, y);
+							Pixel_t outpixel = { inpixel.R, inpixel.G, inpixel.B };
+							*(image + pointer++) = outpixel;
+						}
+					}
+				}
+
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+				const int num_threads = thread::hardware_concurrency();
+				vector<thread> threads(num_threads);
+				int chunk_size = static_cast<int>(ceil(static_cast<double>(input->Width * input->Height) / num_threads));
+				int remaining_pixels = input->Width * input->Height;
+
+				for (int i = 0; i < num_threads; i++) {
+					int pixels_to_process = min(chunk_size, static_cast<int>(remaining_pixels));
+					threads[i] = thread(thread_obj, image, i, pixels_to_process, chunk_size);
+					remaining_pixels -= pixels_to_process;
+					if (remaining_pixels <= 0) {
+						break;
+					}
+				}
+
+				for (auto& thread : threads) {
+					thread.join();
+				}
+
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
+				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
+				if (image != NULL) {
+					int pointer = 0;
+					for (int y = 0; y < input->Height; y++) {
+						for (int x = 0; x < input->Width; x++) {
+							Pixel_t inpixel = *(image + pointer++);
+							Color c = Color::FromArgb(inpixel.R, inpixel.G, inpixel.B);
+							output->SetPixel(x, y, c);
+						}
+					}
+					free(image);
+				}
+				outputpicturebox->Image = output;
+				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+				textBox->Text = textBox->Text + "Filtered using CPU multithread in " + time_span.count() + " seconds.\r\n";
+				textBox->SelectionStart = textBox->Text->Length;
+				textBox->ScrollToCaret();
+				savebutton->Enabled = true;
+			}
+			enableFilters();
+		}
+
+	};	
+
+	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size)
+	{
+		int start = i * chunk_size;
+		for (int j = start; j < start + pixels_to_process; j++) {
+			Pixel_t inpixel = *(image + j);
+			int value = (0.299 * inpixel.R) + (0.587 * inpixel.G) + (0.114 * inpixel.B);
+			inpixel.R = value;
+			inpixel.G = value;
+			inpixel.B = value;
+			*(image + j) = inpixel;
+		}
 	};
+
 }

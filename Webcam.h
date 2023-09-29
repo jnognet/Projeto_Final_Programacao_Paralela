@@ -120,6 +120,7 @@ namespace Webcam {
 		private: System::Void capture_Click(System::Object^ sender, System::EventArgs^ e) 
 		{	
 			capturebutton->Enabled = false;
+			savebutton->Enabled = false;
 			cv::VideoCapture cap;
 			cv::Mat frame;
 
@@ -162,14 +163,20 @@ namespace Webcam {
 		{
 			savebutton->Enabled = false;			
 			SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
-			saveFileDialog->Filter = "Image files (.png) |*.png";
+			saveFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;|" +
+				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg";
 			if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				std::string filename;
 				MarshalString(saveFileDialog->FileName, filename);
 				imwrite(filename, *pframe);
+				MessageBox::Show("File saved", "Success !", MessageBoxButtons::OK);
+				capturepicturebox->Image = nullptr;
 			}
-			savebutton->Enabled = true;
+			else 
+			{
+				savebutton->Enabled = true;
+			}
 		}
 	};
 }
