@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <thread>
 
+#include "Pixel.h"
+#include "GrayScaleCuda.h"
+
 namespace GrayScale {
 
 	using namespace System;
@@ -16,13 +19,7 @@ namespace GrayScale {
 	using namespace System::Data;
 	using namespace System::Drawing;
 	using namespace std;
-
-	typedef struct Pixel {
-		unsigned char R;
-		unsigned char G;
-		unsigned char B;
-	} Pixel_t;
-
+	
 	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size);
 			
 	/// <summary>
@@ -64,13 +61,6 @@ namespace GrayScale {
 	private: System::Windows::Forms::PictureBox^ inputpicturebox;
 	private: System::Windows::Forms::Button^ loadbutton;	
 	private: System::Windows::Forms::TextBox^ textBox;
-
-
-
-
-
-
-
 
 	private:
 		/// <summary>
@@ -128,6 +118,7 @@ namespace GrayScale {
 			this->filtercudabutton->TabIndex = 4;
 			this->filtercudabutton->Text = L"Filter with CUDA";
 			this->filtercudabutton->UseVisualStyleBackColor = true;
+			this->filtercudabutton->Click += gcnew System::EventHandler(this, &GrayScale::filtercudabutton_Click);
 			// 
 			// filtercpumultithreadbutton
 			// 
@@ -291,8 +282,8 @@ namespace GrayScale {
 						output->SetPixel(x, y, c);
 					}
 				}
-				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				outputpicturebox->Image = output;
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 				textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
 				textBox->SelectionStart = textBox->Text->Length;
@@ -343,9 +334,7 @@ namespace GrayScale {
 						}
 					}
 				}
-
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-
 				const int num_threads = thread::hardware_concurrency();
 				vector<thread> threads(num_threads);
 				int chunk_size = static_cast<int>(ceil(static_cast<double>(input->Width * input->Height) / num_threads));
@@ -364,8 +353,6 @@ namespace GrayScale {
 					thread.join();
 				}
 
-				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-
 				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
 				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
 				if (image != NULL) {
@@ -380,6 +367,7 @@ namespace GrayScale {
 					free(image);
 				}
 				outputpicturebox->Image = output;
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 				textBox->Text = textBox->Text + "Filtered using CPU multithread in " + time_span.count() + " seconds.\r\n";
 				textBox->SelectionStart = textBox->Text->Length;
@@ -389,7 +377,58 @@ namespace GrayScale {
 			enableFilters();
 		}
 
-	};	
+		private: System::Void filtercudabutton_Click(System::Object^ sender, System::EventArgs^ e) {
+			disableFilters();
+			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
+			{
+				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+			}
+			else
+			{
+				Pixel_t* image = (Pixel_t*)malloc(input->Width * input->Height * sizeof(Pixel_t));
+				if (image != NULL) {
+					int pointer = 0;
+					for (int y = 0; y < input->Height; y++) {
+						for (int x = 0; x < input->Width; x++) {
+							Color inpixel = input->GetPixel(x, y);
+							Pixel_t outpixel = { inpixel.R, inpixel.G, inpixel.B };
+							*(image + pointer++) = outpixel;
+						}
+					}
+				}
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+				if (grayScaleWithCuda(image, input->Width * input->Height)) 
+				{
+					Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
+					output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
+					if (image != NULL) {
+						int pointer = 0;
+						for (int y = 0; y < input->Height; y++) {
+							for (int x = 0; x < input->Width; x++) {
+								Pixel_t inpixel = *(image + pointer++);
+								Color c = Color::FromArgb(inpixel.R, inpixel.G, inpixel.B);
+								output->SetPixel(x, y, c);
+							}
+						}
+						free(image);
+					}
+					outputpicturebox->Image = output;
+					std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+					textBox->Text = textBox->Text + "Filtered using CUDA in " + time_span.count() + " seconds.\r\n";
+					textBox->SelectionStart = textBox->Text->Length;
+					textBox->ScrollToCaret();
+					savebutton->Enabled = true;				
+				}
+				else
+				{
+					MessageBox::Show("Error running CUDA", "Error!", MessageBoxButtons::OK);
+				}				
+			}
+			enableFilters();
+		}
+	};
 
 	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size)
 	{
