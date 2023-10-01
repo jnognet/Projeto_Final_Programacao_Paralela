@@ -73,11 +73,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath);C:\vcpkg\installed\x64-windows\include;C:\Users\n\source\repos\Projeto_Final_Programacao_Paralela_Cuda;C:\Users\n\source\repos\Projeto_Final_Programacao_Paralela_Halide</IncludePath>
+    <LibraryPath>$(OutDir);C:\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath);C:\vcpkg\installed\x64-windows\include;C:\Users\n\source\repos\Projeto_Final_Programacao_Paralela_Cuda;C:\Users\n\source\repos\Projeto_Final_Programacao_Paralela_Halide</IncludePath>
     <LibraryPath>$(OutDir);C:\vcpkg\installed\x64-windows\debug\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -86,19 +86,21 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);C:\Users\n\source\repos\Projeto_Final_Programacao_Paralela_Cuda;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core4d.lib;opencv_highgui4d.lib;opencv_video4d.lib;opencv_photo4d.lib;opencv_videoio4d.lib;opencv_imgcodecs4d.lib;opencv_imgproc4d.lib;Projeto_Final_Programacao_Paralela_Cuda.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4d.lib;opencv_highgui4d.lib;opencv_video4d.lib;opencv_photo4d.lib;opencv_videoio4d.lib;opencv_imgcodecs4d.lib;opencv_imgproc4d.lib;Projeto_Final_Programacao_Paralela_Cuda.lib;Projeto_Final_Programacao_Paralela_Halide.lib</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>main</EntryPointSymbol>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -133,11 +135,11 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core4.lib;opencv_highgui4.lib;opencv_video4.lib;opencv_photo4.lib;opencv_videoio4.lib;opencv_imgcodecs4.lib;opencv_imgproc4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4.lib;opencv_highgui4.lib;opencv_video4.lib;opencv_photo4.lib;opencv_videoio4.lib;opencv_imgcodecs4.lib;opencv_imgproc4.lib;Projeto_Final_Programacao_Paralela_Cuda.lib;Projeto_Final_Programacao_Paralela_Halide.lib</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>main</EntryPointSymbol>
     </Link>

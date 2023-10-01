@@ -130,6 +130,7 @@ namespace Main {
 			this->sobelbutton->TabIndex = 1;
 			this->sobelbutton->Text = L"Sobel Filter";
 			this->sobelbutton->UseVisualStyleBackColor = true;
+			this->sobelbutton->Enabled = false;
 			this->sobelbutton->Click += gcnew System::EventHandler(this, &Main::sobelbutton_Click);
 			// 
 			// gaussianbutton
@@ -142,6 +143,7 @@ namespace Main {
 			this->gaussianbutton->TabIndex = 3;
 			this->gaussianbutton->Text = L"Gaussian Blur Filter";
 			this->gaussianbutton->UseVisualStyleBackColor = true;
+			this->gaussianbutton->Enabled = false;
 			this->gaussianbutton->Click += gcnew System::EventHandler(this, &Main::gaussianbutton_Click);
 			// 
 			// ufacpicturebox

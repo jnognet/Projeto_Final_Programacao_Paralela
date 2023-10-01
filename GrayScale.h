@@ -7,8 +7,14 @@
 #include <stdlib.h>
 #include <thread>
 
+#include <opencv2/core.hpp>
+#include <opencv2/video.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
+
 #include "Pixel.h"
 #include "GrayScaleCuda.h"
+#include "GrayScaleHalide.h"
 
 namespace GrayScale {
 
@@ -59,14 +65,14 @@ namespace GrayScale {
 	private: System::Windows::Forms::Button^ filtercpubutton;
 	private: System::Windows::Forms::PictureBox^ outputpicturebox;
 	private: System::Windows::Forms::PictureBox^ inputpicturebox;
-	private: System::Windows::Forms::Button^ loadbutton;	
+	private: System::Windows::Forms::Button^ loadbutton;
 	private: System::Windows::Forms::TextBox^ textBox;
 
 	private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -108,6 +114,7 @@ namespace GrayScale {
 			this->filterhalidecpubutton->TabIndex = 5;
 			this->filterhalidecpubutton->Text = L"Filter with Halide (CPU)";
 			this->filterhalidecpubutton->UseVisualStyleBackColor = true;
+			this->filterhalidecpubutton->Click += gcnew System::EventHandler(this, &GrayScale::filterhalidecpubutton_Click);
 			// 
 			// filtercudabutton
 			// 
@@ -225,7 +232,7 @@ namespace GrayScale {
 		}
 #pragma endregion
 
-		private: System::Void loadbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		private: System::Void loadbutton_Click(System::Object^ sender, System::EventArgs^ e)
 		{
 			loadbutton->Enabled = false;
 			savebutton->Enabled = false;
@@ -236,14 +243,15 @@ namespace GrayScale {
 			if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				Bitmap^ image = gcnew Bitmap(openFileDialog->FileName);
-				inputpicturebox->Image = image;				
+				inputpicturebox->Image = image;
 				if (inputpicturebox->Image != nullptr) {
 					outputpicturebox->Image = nullptr;
 					enableFilters();
 				}
-			}		
+			}
 			loadbutton->Enabled = true;
 		}
+
 		private: System::Void disableFilters()
 		{
 			filtercpubutton->Enabled = false;
@@ -262,7 +270,7 @@ namespace GrayScale {
 			filterhalidegpubutton->Enabled = true;
 		}
 
-		private: System::Void filtercpubutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		private: System::Void filtercpubutton_Click(System::Object^ sender, System::EventArgs^ e)
 		{
 			disableFilters();
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
@@ -296,22 +304,21 @@ namespace GrayScale {
 		private: System::Void savebutton_Click(System::Object^ sender, System::EventArgs^ e) {
 			savebutton->Enabled = false;
 			SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
-				saveFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;|" +
+			saveFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;|" +
 				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg";
 			if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
-				Bitmap^ bmp = dynamic_cast<Bitmap^>(outputpicturebox->Image->Clone());			
+				Bitmap^ bmp = dynamic_cast<Bitmap^>(outputpicturebox->Image->Clone());
 				bmp->Save(saveFileDialog->FileName, Imaging::ImageFormat::Jpeg);
 				outputpicturebox->Image = nullptr;
 				textBox->Text = textBox->Text + "File saved: " + saveFileDialog->FileName + ".\r\n";
 				textBox->SelectionStart = textBox->Text->Length;
 				textBox->ScrollToCaret();
-			} 
-			else 
+			}
+			else
 			{
 				savebutton->Enabled = true;
 			}
-
 		}
 
 		private: System::Void filtercpumultithreadbutton_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -398,7 +405,7 @@ namespace GrayScale {
 					}
 				}
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				if (grayScaleWithCuda(image, input->Width * input->Height)) 
+				if (grayScaleWithCuda(image, input->Width * input->Height))
 				{
 					Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
 					output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
@@ -419,12 +426,52 @@ namespace GrayScale {
 					textBox->Text = textBox->Text + "Filtered using CUDA in " + time_span.count() + " seconds.\r\n";
 					textBox->SelectionStart = textBox->Text->Length;
 					textBox->ScrollToCaret();
-					savebutton->Enabled = true;				
+					savebutton->Enabled = true;
 				}
 				else
 				{
 					MessageBox::Show("Error running CUDA", "Error!", MessageBoxButtons::OK);
-				}				
+				}
+			}
+			enableFilters();
+		}
+
+		private: System::Void filterhalidecpubutton_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			disableFilters();
+			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
+			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
+			{
+				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+			}
+			else
+			{
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+				
+				System::Drawing::Rectangle blank = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
+				System::Drawing::Imaging::BitmapData^ bmpdata = input->LockBits(blank, System::Drawing::Imaging::ImageLockMode::ReadWrite,
+					System::Drawing::Imaging::PixelFormat::Format24bppRgb);
+				int wb = ((input->Width * 24 + 31) / 32) * 4;
+				cv::Mat cv_img(cv::Size(input->Width, input->Height),
+					CV_8UC3, bmpdata->Scan0.ToPointer(), wb);
+				input->UnlockBits(bmpdata);
+
+				cv::Mat output = grayScaleWithHalide(cv_img);
+				 				
+				System::Drawing::Graphics^ graphics = outputpicturebox->CreateGraphics();
+				System::IntPtr ptr(output.ptr());
+				System::Drawing::Bitmap^ b = gcnew System::Drawing::Bitmap(output.cols, output.rows, output.step,
+					System::Drawing::Imaging::PixelFormat::Format24bppRgb, ptr);
+				System::Drawing::RectangleF rect(0, 0, outputpicturebox->Width, outputpicturebox->Height);
+				graphics->DrawImage(b, rect);
+				delete graphics;
+
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+				textBox->Text = textBox->Text + "Filtered using Halide with CPU in " + time_span.count() + " seconds.\r\n";
+				textBox->SelectionStart = textBox->Text->Length;
+				textBox->ScrollToCaret();
+				savebutton->Enabled = true;			
 			}
 			enableFilters();
 		}
