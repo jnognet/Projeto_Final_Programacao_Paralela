@@ -254,9 +254,8 @@ namespace GrayScale {
 			loadbutton->Enabled = false;
 			savebutton->Enabled = false;
 			OpenFileDialog^ openFileDialog = gcnew OpenFileDialog();
-			openFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
-				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
-				"Portable Network Graphic (*.png)|*.png";
+			openFileDialog->Filter = "All supported graphics|*.jpg;*.jpeg;|" +
+				"JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg";
 			if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				Bitmap^ image = gcnew Bitmap(openFileDialog->FileName);
