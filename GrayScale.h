@@ -241,6 +241,7 @@ namespace GrayScale {
 			this->Name = L"GrayScale";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"GrayScale Filter";
+			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
 			this->ResumeLayout(false);
@@ -346,6 +347,7 @@ namespace GrayScale {
 			}
 			else
 			{
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 				Pixel_t* image = (Pixel_t*)malloc(input->Width * input->Height * sizeof(Pixel_t));
 				if (image != NULL) {
 					int pointer = 0;
@@ -357,7 +359,6 @@ namespace GrayScale {
 						}
 					}
 				}
-				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 				const int num_threads = thread::hardware_concurrency();
 				vector<thread> threads(num_threads);
 				int chunk_size = static_cast<int>(ceil(static_cast<double>(input->Width * input->Height) / num_threads));
