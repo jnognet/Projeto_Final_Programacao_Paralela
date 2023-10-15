@@ -81,7 +81,7 @@ namespace Credits {
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(164, 95);
+			this->label5->Location = System::Drawing::Point(170, 62);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(126, 13);
 			this->label5->TabIndex = 4;
@@ -90,11 +90,11 @@ namespace Credits {
 			// label4
 			// 
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(121, 35);
+			this->label4->Location = System::Drawing::Point(121, 90);
 			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(230, 13);
+			this->label4->Size = System::Drawing::Size(253, 13);
 			this->label4->TabIndex = 3;
-			this->label4->Text = L"Gabriel Logan Rocha Amasifuen  (@gmail.com)";
+			this->label4->Text = L"João Gabriel Pires Cordovil  (gabrielriery@gmail.com)";
 			// 
 			// label3
 			// 
@@ -108,11 +108,11 @@ namespace Credits {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(116, 65);
+			this->label2->Location = System::Drawing::Point(96, 31);
 			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(238, 13);
+			this->label2->Size = System::Drawing::Size(293, 13);
 			this->label2->TabIndex = 1;
-			this->label2->Text = L"Gustavo Moreira Oliveira de Castro (@gmail.com)";
+			this->label2->Text = L"Gustavo Moreira Oliveira de Castro (gkmocastro@gmail.com)";
 			// 
 			// label1
 			// 
@@ -130,7 +130,7 @@ namespace Credits {
 			this->ClientSize = System::Drawing::Size(504, 231);
 			this->Controls->Add(this->groupBox1);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
-			this->Icon = gcnew System::Drawing::Icon(L"credits.ico");
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Credits";

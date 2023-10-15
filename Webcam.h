@@ -8,6 +8,8 @@
 #include <string>
 #include <iostream>
 
+#include "Util.h"
+
 namespace Webcam {
 
 	using namespace System;
@@ -149,14 +151,6 @@ namespace Webcam {
 			frame.release();
 			cap.release();
 			capturebutton->Enabled = true;
-		}
-
-		void MarshalString(String^ s, string& os) {
-			using namespace Runtime::InteropServices;
-			const char* chars =
-				(const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
-			os = chars;
-			Marshal::FreeHGlobal(IntPtr((void*)chars));
 		}
 
 		private: System::Void save_Click(System::Object^ sender, System::EventArgs^ e) 

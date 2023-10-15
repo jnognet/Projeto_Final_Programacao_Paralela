@@ -17,7 +17,6 @@
 #include "GrayScaleCuda.h"
 #include "GrayScaleHalide.h"
 
-
 namespace GrayScale {
 
 	using namespace System;
@@ -239,9 +238,9 @@ namespace GrayScale {
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"GrayScale";
+			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"GrayScale Filter";
-			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
 			this->ResumeLayout(false);
@@ -262,6 +261,20 @@ namespace GrayScale {
 				Bitmap^ image = gcnew Bitmap(openFileDialog->FileName);
 				inputpicturebox->Image = image;
 				if (inputpicturebox->Image != nullptr) {
+					String^ msg = gcnew String("");
+					msg += image->Width + "w, ";
+					msg += image->Height + "h, ";
+					msg += image->HorizontalResolution + "ppi h, ";
+					msg += image->VerticalResolution + "ppi v, ";
+					msg += image->PixelFormat.ToString() + ", ";
+					msg += image->GetPixelFormatSize(image->PixelFormat) + " bits";
+					textBox->Text = textBox->Text + "Image loaded: " + 
+						openFileDialog->FileName + " (" +
+							msg +
+						")\r\n";
+					textBox->SelectionStart = textBox->TextLength;
+					textBox->ScrollToCaret();
+
 					outputpicturebox->Image = nullptr;
 					enableFilters();
 				}
@@ -297,17 +310,62 @@ namespace GrayScale {
 			else
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
-				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
-				for (int x = 0; x < input->Width; x++) {
-					for (int y = 0; y < input->Height; y++) {
-						Color pixelsrc = input->GetPixel(x, y);
-						int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
-						Color c = Color::FromArgb(value, value, value);
-						output->SetPixel(x, y, c);
+				/*
+					Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
+					output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
+					for (int x = 0; x < bmp->Width; x++)
+					{
+						for (int y = 0; y < bmp->Height; y++)
+						{
+							Color pixelsrc = bmp->GetPixel(x, y);
+							int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
+							Color c = Color::FromArgb(value, value, value);
+							output->SetPixel(x, y, c);
+						}
 					}
+				*/
+
+				/*
+					System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, bmp->Width, bmp->Height);
+					System::Drawing::Imaging::BitmapData^ bmpData = bmp->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
+						bmp->PixelFormat);
+
+					IntPtr^ pbm = bmpData->Scan0;
+					Byte* imagePointer1 = (Byte*)pbm->ToPointer();
+
+					for (int i = 0; i < bmp->Height; i++)
+					{
+						for (int j = 0; j < bmp->Width; j++)
+						{
+							int value = (0.299 * imagePointer1[2]) + (0.587 * imagePointer1[1]) + (0.114 * imagePointer1[0]);
+							imagePointer1[0] = (Byte)std::clamp(value, 0, 255);
+							imagePointer1[1] = (Byte)std::clamp(value, 0, 255);
+							imagePointer1[2] = (Byte)std::clamp(value, 0, 255);
+							imagePointer1 += 3;
+						}
+						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
+					}
+					bmp->UnlockBits(bmpData);
+				*/
+
+				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
+				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
+					input->PixelFormat);
+
+				IntPtr^ pbm = bmpData->Scan0;
+				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
+
+				for (int i = 0; i < input->Height * input->Width; i++)
+				{
+					unsigned char value = (0.299 * imagePointer1[2]) + (0.587 * imagePointer1[1]) + (0.114 * imagePointer1[0]);
+					imagePointer1[0] = value;
+					imagePointer1[1] = value;
+					imagePointer1[2] = value;
+					imagePointer1 += 3;
 				}
-				outputpicturebox->Image = output;
+				input->UnlockBits(bmpData);
+
+				outputpicturebox->Image = input;
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 				textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";
@@ -502,6 +560,7 @@ namespace GrayScale {
 			}
 			enableFilters();
 		}
+
 };
 
 	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size)
