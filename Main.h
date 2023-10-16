@@ -3,6 +3,7 @@
 #include "Credits.h"
 #include "Webcam.h"
 #include "GrayScale.h"
+#include "Complement.h"
 #include "GaussianBlur.h"
 
 namespace Main {
@@ -42,9 +43,10 @@ namespace Main {
 	private: System::Windows::Forms::Button^ creditsbutton;
 	private: System::Windows::Forms::Button^ webcambutton;
 	private: System::Windows::Forms::Button^ grayscalebutton;
+	private: System::Windows::Forms::Button^ complementbutton;
 	protected:
 
-	private: System::Windows::Forms::Button^ sobelbutton;
+
 
 	private: System::Windows::Forms::Button^ gaussianbutton;
 
@@ -72,11 +74,10 @@ namespace Main {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Main::typeid));
 			this->creditsbutton = (gcnew System::Windows::Forms::Button());
 			this->webcambutton = (gcnew System::Windows::Forms::Button());
 			this->grayscalebutton = (gcnew System::Windows::Forms::Button());
-			this->sobelbutton = (gcnew System::Windows::Forms::Button());
+			this->complementbutton = (gcnew System::Windows::Forms::Button());
 			this->gaussianbutton = (gcnew System::Windows::Forms::Button());
 			this->ufacpicturebox = (gcnew System::Windows::Forms::PictureBox());
 			this->motorolapicturebox = (gcnew System::Windows::Forms::PictureBox());
@@ -122,18 +123,17 @@ namespace Main {
 			this->grayscalebutton->UseVisualStyleBackColor = true;
 			this->grayscalebutton->Click += gcnew System::EventHandler(this, &Main::grayscalebutton_Click);
 			// 
-			// sobelbutton
+			// complementbutton
 			// 
-			this->sobelbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
-			this->sobelbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
-			this->sobelbutton->Enabled = false;
-			this->sobelbutton->Location = System::Drawing::Point(34, 207);
-			this->sobelbutton->Name = L"sobelbutton";
-			this->sobelbutton->Size = System::Drawing::Size(771, 53);
-			this->sobelbutton->TabIndex = 1;
-			this->sobelbutton->Text = L"Sobel Filter";
-			this->sobelbutton->UseVisualStyleBackColor = true;
-			this->sobelbutton->Click += gcnew System::EventHandler(this, &Main::sobelbutton_Click);
+			this->complementbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
+			this->complementbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->complementbutton->Location = System::Drawing::Point(34, 207);
+			this->complementbutton->Name = L"complementbutton";
+			this->complementbutton->Size = System::Drawing::Size(771, 53);
+			this->complementbutton->TabIndex = 1;
+			this->complementbutton->Text = L"Complement Filter";
+			this->complementbutton->UseVisualStyleBackColor = true;
+			this->complementbutton->Click += gcnew System::EventHandler(this, &Main::complementbutton_Click);
 			// 
 			// gaussianbutton
 			// 
@@ -193,12 +193,13 @@ namespace Main {
 			this->Controls->Add(this->motorolapicturebox);
 			this->Controls->Add(this->ufacpicturebox);
 			this->Controls->Add(this->gaussianbutton);
-			this->Controls->Add(this->sobelbutton);
+			this->Controls->Add(this->complementbutton);
 			this->Controls->Add(this->grayscalebutton);
 			this->Controls->Add(this->webcambutton);
 			this->Controls->Add(this->creditsbutton);
 			this->MinimumSize = System::Drawing::Size(861, 507);
 			this->Name = L"Main";
+			// this->Icon = gcnew System::Drawing::Icon(L"main.ico");
 			this->Icon = gcnew System::Drawing::Icon(L"main.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Projeto Final - Programação Paralela - Grupo 1 - PAVIC LAB/UFAC - v1.0";
@@ -210,31 +211,32 @@ namespace Main {
 		}
 #pragma endregion	
 	
-	private: System::Void grayscalebutton_Click(System::Object^ sender, System::EventArgs^ e) 
-	{
-		GrayScale::GrayScale^ grayscale = gcnew GrayScale::GrayScale;
-		grayscale->ShowDialog();
-	}
+		private: System::Void grayscalebutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		{
+			GrayScale::GrayScale^ grayscale = gcnew GrayScale::GrayScale;
+			grayscale->ShowDialog();
+		}
 
-	private: System::Void sobelbutton_Click(System::Object^ sender, System::EventArgs^ e) 
-	{
-	}
+		private: System::Void complementbutton_Click(System::Object^ sender, System::EventArgs^ e) {
+			Complement::Complement^ complement = gcnew Complement::Complement;
+			complement->ShowDialog();
+		}
 
-	private: System::Void gaussianbutton_Click(System::Object^ sender, System::EventArgs^ e) 
-	{
-		GaussianBlur::GaussianBlur^ gaussianblur = gcnew GaussianBlur::GaussianBlur;
-		gaussianblur->ShowDialog();
-	}
+		private: System::Void gaussianbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		{
+			GaussianBlur::GaussianBlur^ gaussianblur = gcnew GaussianBlur::GaussianBlur;
+			gaussianblur->ShowDialog();
+		}
 
-	private: System::Void webcambutton_Click(System::Object^ sender, System::EventArgs^ e) 
-	{
-		Webcam::Webcam^ webcam = gcnew Webcam::Webcam;
-		webcam->ShowDialog();
-	}
-	private: System::Void creaditsbutton_Click(System::Object^ sender, System::EventArgs^ e) 
-	{
-		Credits::Credits^ credits = gcnew Credits::Credits;
-		credits->ShowDialog();
-	}
-};
+		private: System::Void webcambutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		{
+			Webcam::Webcam^ webcam = gcnew Webcam::Webcam;
+			webcam->ShowDialog();
+		}
+		private: System::Void creaditsbutton_Click(System::Object^ sender, System::EventArgs^ e) 
+		{
+			Credits::Credits^ credits = gcnew Credits::Credits;
+			credits->ShowDialog();
+		}
+	};
 }

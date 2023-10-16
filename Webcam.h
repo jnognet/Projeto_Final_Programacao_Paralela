@@ -111,6 +111,7 @@ namespace Webcam {
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Webcam";
+			// this->Icon = gcnew System::Drawing::Icon(L"webcam.ico");
 			this->Icon = gcnew System::Drawing::Icon(L"webcam.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Webcam";

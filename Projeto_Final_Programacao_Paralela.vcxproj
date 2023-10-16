@@ -148,6 +148,9 @@
     <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Complement.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="GaussianBlur.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -169,6 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="Complement.cpp">
+      <FileType>CppForm</FileType>
+    </ClCompile>
     <ClCompile Include="GaussianBlur.cpp" />
     <ClCompile Include="GrayScale.cpp" />
     <ClCompile Include="Projeto_Final_Programacao_Paralela.cpp" />
@@ -191,6 +197,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Complement.resx">
+      <DependentUpon>Complement.h</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Credits.resx">
       <DependentUpon>Credits.h</DependentUpon>
     </EmbeddedResource>

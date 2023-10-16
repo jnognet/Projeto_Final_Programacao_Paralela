@@ -14,8 +14,8 @@
 #include <opencv2/imgcodecs.hpp>
 
 #include "Pixel.h"
-#include "GrayScaleCuda.h"
-#include "GrayScaleHalide.h"
+#include "FilterCuda.h"
+#include "FilterHalide.h"
 
 namespace GrayScale {
 
@@ -236,7 +236,8 @@ namespace GrayScale {
 			this->Controls->Add(this->inputpicturebox);
 			this->Controls->Add(this->loadbutton);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
-			//this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
+			// this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
+			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"GrayScale";
@@ -305,49 +306,14 @@ namespace GrayScale {
 		{
 			disableFilters();
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
-			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed) {
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+			if (input->GetPixelFormatSize(input->PixelFormat) != 24) {
+				MessageBox::Show("Filter expecting 3 channels", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				/*
-					Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
-					output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
-					for (int x = 0; x < bmp->Width; x++)
-					{
-						for (int y = 0; y < bmp->Height; y++)
-						{
-							Color pixelsrc = bmp->GetPixel(x, y);
-							int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
-							Color c = Color::FromArgb(value, value, value);
-							output->SetPixel(x, y, c);
-						}
-					}
-				*/
 
-				/*
-					System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, bmp->Width, bmp->Height);
-					System::Drawing::Imaging::BitmapData^ bmpData = bmp->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
-						bmp->PixelFormat);
-
-					IntPtr^ pbm = bmpData->Scan0;
-					Byte* imagePointer1 = (Byte*)pbm->ToPointer();
-
-					for (int i = 0; i < bmp->Height; i++)
-					{
-						for (int j = 0; j < bmp->Width; j++)
-						{
-							int value = (0.299 * imagePointer1[2]) + (0.587 * imagePointer1[1]) + (0.114 * imagePointer1[0]);
-							imagePointer1[0] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1[1] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1[2] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1 += 3;
-						}
-						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
-					}
-					bmp->UnlockBits(bmpData);
-				*/
+				// https://support.ptc.com/help/mathcad/r9.0/en/index.html#page/PTC_Mathcad_Help/example_grayscale_and_color_in_images.html
 
 				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
 				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
@@ -400,24 +366,34 @@ namespace GrayScale {
 		private: System::Void filtercpumultithreadbutton_Click(System::Object^ sender, System::EventArgs^ e) {
 			disableFilters();
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
-			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
+			if (input->GetPixelFormatSize(input->PixelFormat) != 24)
 			{
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+				MessageBox::Show("Filter expecting 3 channels", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				Pixel_t* image = (Pixel_t*)malloc(input->Width * input->Height * sizeof(Pixel_t));
+
+				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
+				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadOnly,
+					input->PixelFormat);
+				IntPtr^ pbm = bmpData->Scan0;
+				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
+
+				Pixel_t* image = (Pixel_t*) malloc(input->Width * input->Height * sizeof(Pixel_t));
 				if (image != NULL) {
 					int pointer = 0;
 					for (int y = 0; y < input->Height; y++) {
 						for (int x = 0; x < input->Width; x++) {
-							Color inpixel = input->GetPixel(x, y);
-							Pixel_t outpixel = { inpixel.R, inpixel.G, inpixel.B };
+							Pixel_t outpixel = { imagePointer1[2], imagePointer1[1], imagePointer1[0] };
 							*(image + pointer++) = outpixel;
+							imagePointer1 += 3;
 						}
+						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
 					}
 				}
+				input->UnlockBits(bmpData);
+
 				const int num_threads = thread::hardware_concurrency();
 				vector<thread> threads(num_threads);
 				int chunk_size = static_cast<int>(ceil(static_cast<double>(input->Width * input->Height) / num_threads));
@@ -436,20 +412,28 @@ namespace GrayScale {
 					thread.join();
 				}
 
-				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
-				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
+				rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
+				bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::WriteOnly, input->PixelFormat);
+				pbm = bmpData->Scan0;
+				imagePointer1 = (Byte*)pbm->ToPointer();
+
 				if (image != NULL) {
 					int pointer = 0;
 					for (int y = 0; y < input->Height; y++) {
 						for (int x = 0; x < input->Width; x++) {
 							Pixel_t inpixel = *(image + pointer++);
-							Color c = Color::FromArgb(inpixel.R, inpixel.G, inpixel.B);
-							output->SetPixel(x, y, c);
+							imagePointer1[2] = inpixel.R;
+							imagePointer1[1] = inpixel.G;
+							imagePointer1[0] = inpixel.B;
+							imagePointer1 += 3;
 						}
+						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
 					}
 					free(image);
 				}
-				outputpicturebox->Image = output;
+				input->UnlockBits(bmpData);
+
+				outputpicturebox->Image = input;
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 				textBox->Text = textBox->Text + "Filtered using CPU multithread in " + time_span.count() + " seconds.\r\n";
@@ -463,9 +447,9 @@ namespace GrayScale {
 		private: System::Void filtercudabutton_Click(System::Object^ sender, System::EventArgs^ e) {
 			disableFilters();
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
-			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
+			if (input->GetPixelFormatSize(input->PixelFormat) != 24)
 			{
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+				MessageBox::Show("Filter expecting 3 channels", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{
@@ -497,7 +481,7 @@ namespace GrayScale {
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
 			if (inputpicturebox->Image->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
 			{
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+				MessageBox::Show("Filter expecting 3 channels", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{					
@@ -536,7 +520,7 @@ namespace GrayScale {
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
 			if (inputpicturebox->Image->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed)
 			{
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+				MessageBox::Show("Filter expecting 3 channels", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{

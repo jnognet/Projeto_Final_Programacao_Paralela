@@ -17,7 +17,7 @@
 #include "FilterCuda.h"
 #include "FilterHalide.h"
 
-namespace GaussianBlur {
+namespace Complement {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -30,12 +30,12 @@ namespace GaussianBlur {
 	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size);
 			
 	/// <summary>
-	/// Summary for GaussianBlur
+	/// Summary for Complement
 	/// </summary>
-	public ref class GaussianBlur : public System::Windows::Forms::Form
+	public ref class Complement : public System::Windows::Forms::Form
 	{
 	public:
-		GaussianBlur(void)
+		Complement(void)
 		{
 			InitializeComponent();
 			//
@@ -47,7 +47,7 @@ namespace GaussianBlur {
 		/// <summary>
 		/// Clean up any resources being used.
 		/// </summary>
-		~GaussianBlur()
+		~Complement()
 		{
 			if (components)
 			{
@@ -108,8 +108,7 @@ namespace GaussianBlur {
 			this->filterhalidegpubutton->TabIndex = 6;
 			this->filterhalidegpubutton->Text = L"Filter with Halide (GPU)";
 			this->filterhalidegpubutton->UseVisualStyleBackColor = true;
-			this->filterhalidegpubutton->Visible = false;
-			this->filterhalidegpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filterhalidegpubutton_Click);
+			this->filterhalidegpubutton->Click += gcnew System::EventHandler(this, &Complement::filterhalidegpubutton_Click);
 			// 
 			// filterhalidecpubutton
 			// 
@@ -120,8 +119,7 @@ namespace GaussianBlur {
 			this->filterhalidecpubutton->TabIndex = 5;
 			this->filterhalidecpubutton->Text = L"Filter with Halide (CPU)";
 			this->filterhalidecpubutton->UseVisualStyleBackColor = true;
-			this->filterhalidecpubutton->Visible = false;
-			this->filterhalidecpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filterhalidecpubutton_Click);
+			this->filterhalidecpubutton->Click += gcnew System::EventHandler(this, &Complement::filterhalidecpubutton_Click);
 			// 
 			// filtercudabutton
 			// 
@@ -132,8 +130,7 @@ namespace GaussianBlur {
 			this->filtercudabutton->TabIndex = 4;
 			this->filtercudabutton->Text = L"Filter with CUDA";
 			this->filtercudabutton->UseVisualStyleBackColor = true;
-			this->filtercudabutton->Visible = false;
-			this->filtercudabutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercudabutton_Click);
+			this->filtercudabutton->Click += gcnew System::EventHandler(this, &Complement::filtercudabutton_Click);
 			// 
 			// filtercpumultithreadbutton
 			// 
@@ -144,7 +141,7 @@ namespace GaussianBlur {
 			this->filtercpumultithreadbutton->TabIndex = 3;
 			this->filtercpumultithreadbutton->Text = L"Filter with CPU (multithread)";
 			this->filtercpumultithreadbutton->UseVisualStyleBackColor = true;
-			this->filtercpumultithreadbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercpumultithreadbutton_Click);
+			this->filtercpumultithreadbutton->Click += gcnew System::EventHandler(this, &Complement::filtercpumultithreadbutton_Click);
 			// 
 			// savebutton
 			// 
@@ -155,7 +152,7 @@ namespace GaussianBlur {
 			this->savebutton->TabIndex = 7;
 			this->savebutton->Text = L"Save";
 			this->savebutton->UseVisualStyleBackColor = true;
-			this->savebutton->Click += gcnew System::EventHandler(this, &GaussianBlur::savebutton_Click);
+			this->savebutton->Click += gcnew System::EventHandler(this, &Complement::savebutton_Click);
 			// 
 			// filtercpubutton
 			// 
@@ -166,7 +163,7 @@ namespace GaussianBlur {
 			this->filtercpubutton->TabIndex = 2;
 			this->filtercpubutton->Text = L"Filter with CPU";
 			this->filtercpubutton->UseVisualStyleBackColor = true;
-			this->filtercpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercpubutton_Click);
+			this->filtercpubutton->Click += gcnew System::EventHandler(this, &Complement::filtercpubutton_Click);
 			// 
 			// outputpicturebox
 			// 
@@ -198,7 +195,7 @@ namespace GaussianBlur {
 			this->loadbutton->TabIndex = 1;
 			this->loadbutton->Text = L"Load";
 			this->loadbutton->UseVisualStyleBackColor = true;
-			this->loadbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::loadbutton_Click);
+			this->loadbutton->Click += gcnew System::EventHandler(this, &Complement::loadbutton_Click);
 			// 
 			// textBox
 			// 
@@ -219,9 +216,9 @@ namespace GaussianBlur {
 			this->clearbutton->TabIndex = 12;
 			this->clearbutton->Text = L"Clear";
 			this->clearbutton->UseVisualStyleBackColor = true;
-			this->clearbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::clearbutton_Click);
+			this->clearbutton->Click += gcnew System::EventHandler(this, &Complement::clearbutton_Click);
 			// 
-			// GaussianBlur
+			// Complement
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
@@ -240,9 +237,11 @@ namespace GaussianBlur {
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
-			this->Name = L"GaussianBlur";
+			this->Name = L"Complement";
+			// this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
+			this->Icon = gcnew System::Drawing::Icon(L"filter.ico");
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"Gaussian Blur Filter";
+			this->Text = L"Complement Filter";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
 			this->ResumeLayout(false);
@@ -313,174 +312,23 @@ namespace GaussianBlur {
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-				// https://itecnote.com/tecnote/c-implementing-gaussian-blur-how-to-calculate-convolution-matrix-kernel/
-				// making gaussian kernel
-				int sizeColumnsKernel = 7;
-				int sizeRowsKernel = 7;
-				int sigma = 50;
-				double* h1, * h2, * hg, * h;
-				int pointer;
-
-				h1 = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				h2 = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				hg = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				h = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-
-				double* upper = (double*) malloc(sizeof(double) * sizeRowsKernel);
-				pointer = 0;
-				for (double y = -((double)sizeRowsKernel - 1) / 2; y <= ((double)sizeRowsKernel - 1) / 2; y++)
-				{
-					*(upper + pointer++) = y;
-				}
-
-				double* down = (double*) malloc(sizeof(double) * sizeColumnsKernel);;
-				pointer = 0;
-				for (double x = -((double)sizeColumnsKernel - 1) / 2; x <= ((double)sizeColumnsKernel - 1) / 2; x++)
-				{
-					*(down + pointer++) = x;
-				}
-
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(h1 + (sizeColumnsKernel * x) + y) = *(upper + y);
-						*(h2 + (sizeColumnsKernel * x) + y) = *(upper + x);
-					}
-				}
-
-				double sumHg = 0;
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(hg + (sizeColumnsKernel * x) + y) = std::exp(-(std::pow(*(h1 + (sizeColumnsKernel * x) + y), 2) + std::pow(*(h2 + (sizeColumnsKernel * x) + y), 2)) / (2 * std::pow(sigma, 2)));
-						sumHg += *(hg + (sizeColumnsKernel * x) + y);
-					}
-				}
-
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(h + (sizeColumnsKernel * x) + y) = *(hg + (sizeColumnsKernel * x) + y) / sumHg;
-					}
-				}
-
-				free(h1);
-				free(h2);
-				free(hg);
-
-				// https://www.mathworks.com/help/matlab/ref/conv2.html
-				// rotate 180 desgrees the kernel
-				double* kernel = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(kernel + (sizeColumnsKernel * x) + y) = *(h + ((sizeColumnsKernel - x - 1) * sizeColumnsKernel) + (sizeRowsKernel - y - 1));
-					}
-				}
-
-				free(h);
-
-				// matlab imfilter -> conv2 "same"
-				int sizeRowsOut = input->Height + sizeRowsKernel - 1;
-				int sizeColumnsOut = input->Width + sizeColumnsKernel - 1;
-				int channels = Image::GetPixelFormatSize(input->PixelFormat) / 8;
-
-				double* xyBmpR = (double*) calloc(input->Width * input->Height, sizeof(double));
-				double* xyBmpG = (double*) calloc(input->Width * input->Height, sizeof(double));
-				double* xyBmpB = (double*) calloc(input->Width * input->Height, sizeof(double));
-
-				double* outR = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
-				double* outG = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
-				double* outB = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+				// https://www.mathworks.com/help/images/ref/imcomplement.html
 
 				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
-				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadOnly,
+				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
 					input->PixelFormat);
+
 				IntPtr^ pbm = bmpData->Scan0;
 				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
 
-				pointer = 0;
-				for (int y = 0; y < input->Height; y++)
-				{
-					for (int x = 0; x < input->Width; x++)
-					{
-						*(xyBmpR + pointer) = imagePointer1[2];
-						*(xyBmpG + pointer) = imagePointer1[1];
-						*(xyBmpB + pointer) = imagePointer1[0];
-						imagePointer1 += 3;
-						pointer++;
-					}
-					imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));				
+				for (int i = 0; i < input->Height * input->Width; i++)
+				{					
+					imagePointer1[0] = 255 - imagePointer1[0];
+					imagePointer1[1] = 255 - imagePointer1[1];
+					imagePointer1[2] = 255 - imagePointer1[2];
+					imagePointer1 += 3;
 				}
 				input->UnlockBits(bmpData);
-
-				for (int RowBmp = 0; RowBmp < input->Height; RowBmp++)
-				{
-					for (int ColumnBmp = 0; ColumnBmp < input->Width; ColumnBmp++)
-					{
-						for (int RowKernel = 0; RowKernel < sizeRowsKernel; RowKernel++)
-						{
-							for (int ColumnKernel = 0; ColumnKernel < sizeColumnsKernel; ColumnKernel++)
-							{
-								int j = RowBmp + RowKernel;
-								int k = ColumnBmp + ColumnKernel;
-
-								if (j >= 0 && j < sizeRowsOut && k >= 0 && k < sizeColumnsOut)
-								{
-									*(outR + (sizeColumnsOut * j) + k) = *(outR + (sizeColumnsOut * j) + k) +
-										(*(xyBmpR + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-									*(outG + (sizeColumnsOut * j) + k) = *(outG + (sizeColumnsOut * j) + k) +
-										(*(xyBmpG + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-									*(outB + (sizeColumnsOut * j) + k) = *(outB + (sizeColumnsOut * j) + k) +
-										(*(xyBmpB + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-								}
-							}
-						}
-					}
-				}
-
-				free(kernel);
-
-				// round & clamp
-				for (int x = 0; x < sizeRowsOut; x++)
-				{
-					for (int y = 0; y < sizeColumnsOut; y++)
-					{
-						*(outR + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outR + (sizeColumnsOut * x) + y)), 0, 255);
-						*(outG + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outG + (sizeColumnsOut * x) + y)), 0, 255);
-						*(outB + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outB + (sizeColumnsOut * x) + y)), 0, 255);
-					}
-				}
-
-				int first_w = floor(sizeColumnsKernel / 2);
-				int first_h = floor(sizeRowsKernel / 2);
-
-				rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
-				bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::WriteOnly, input->PixelFormat);
-				pbm = bmpData->Scan0;
-				imagePointer1 = (Byte*)pbm->ToPointer();
-
-				for (int y = 0; y < input->Height; y++)
-				{
-					for (int x = 0; x < input->Width; x++)
-					{
-						imagePointer1[2] = *(outR + (sizeColumnsOut * (y + first_h)) + x + first_w);
-						imagePointer1[1] = *(outG + (sizeColumnsOut * (y + first_h)) + x + first_w);
-						imagePointer1[0] = *(outB + (sizeColumnsOut * (y + first_h)) + x + first_w);
-						imagePointer1 += 3;
-					}
-					imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
-				}
-				input->UnlockBits(bmpData);
-
-				free(outR);
-				free(outG);
-				free(outB);
-
 				outputpicturebox->Image = input;
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
@@ -533,7 +381,7 @@ namespace GaussianBlur {
 				if (image != NULL) {
 					int pointer = 0;
 					for (int y = 0; y < input->Height; y++) {
-						for (int x = 0; x < input->Width; x++) {
+						for (int x = 0; x < input->Width; x++) {							
 							Pixel_t outpixel = { imagePointer1[2], imagePointer1[1], imagePointer1[0] };
 							*(image + pointer++) = outpixel;
 							imagePointer1 += 3;
@@ -606,7 +454,7 @@ namespace GaussianBlur {
 				string file_output = filesystem::temp_directory_path().generic_string().append("output_tmp.jpg");
 				input->Save(gcnew String(file_input.c_str()));
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				if (grayScaleWithCuda(file_input, file_output))
+				if (complementWithCuda(file_input, file_output))
 				{
 					std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
@@ -638,7 +486,7 @@ namespace GaussianBlur {
 				string file_output = filesystem::temp_directory_path().generic_string().append("output_tmp.jpg");
 				input->Save(gcnew String(file_input.c_str()));
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				if (grayScaleWithHalideCPU(file_input, file_output))
+				if (complementWithHalideCPU(file_input, file_output))
 				{
 					std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
@@ -677,7 +525,7 @@ namespace GaussianBlur {
 				string file_output = filesystem::temp_directory_path().generic_string().append("output_tmp.jpg");
 				input->Save(gcnew String(file_input.c_str()));
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				if (grayScaleWithHalideGPU(file_input, file_output))
+				if (complementWithHalideGPU(file_input, file_output))
 				{
 					std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
@@ -702,10 +550,9 @@ namespace GaussianBlur {
 		int start = i * chunk_size;
 		for (int j = start; j < start + pixels_to_process; j++) {
 			Pixel_t inpixel = *(image + j);
-			int value = (0.299 * inpixel.R) + (0.587 * inpixel.G) + (0.114 * inpixel.B);
-			inpixel.R = value;
-			inpixel.G = value;
-			inpixel.B = value;
+			inpixel.R = 255 - inpixel.R;
+			inpixel.G = 255 - inpixel.G;
+			inpixel.B = 255 - inpixel.B;
 			*(image + j) = inpixel;
 		}
 	};

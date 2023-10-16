@@ -44,6 +44,9 @@
     <ClInclude Include="GaussianBlur.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Complement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Projeto_Final_Programacao_Paralela.cpp">
@@ -71,6 +74,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GaussianBlur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Complement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
