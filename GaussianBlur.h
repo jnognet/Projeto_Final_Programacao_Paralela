@@ -383,33 +383,6 @@ namespace GaussianBlur {
 
 				}
 
-				/*
-				for (int RowBmp = 0; RowBmp < input->Height; RowBmp++)
-				{
-					for (int ColumnBmp = 0; ColumnBmp < input->Width; ColumnBmp++)
-					{
-						for (int RowKernel = 0; RowKernel < sizeRowsKernel; RowKernel++)
-						{
-							for (int ColumnKernel = 0; ColumnKernel < sizeColumnsKernel; ColumnKernel++)
-							{
-								int j = RowBmp + RowKernel;
-								int k = ColumnBmp + ColumnKernel;
-
-								if (j >= 0 && j < sizeRowsOut && k >= 0 && k < sizeColumnsOut)
-								{
-									*(outR + (sizeColumnsOut * j) + k) = *(outR + (sizeColumnsOut * j) + k) +
-										(*(xyBmpR + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-									*(outG + (sizeColumnsOut * j) + k) = *(outG + (sizeColumnsOut * j) + k) +
-										(*(xyBmpG + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-									*(outB + (sizeColumnsOut * j) + k) = *(outB + (sizeColumnsOut * j) + k) +
-										(*(xyBmpB + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
-								}
-							}
-						}
-					}
-				}
-				*/
-
 				free(kernel);
 
 				// round & clamp
