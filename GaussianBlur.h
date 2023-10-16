@@ -27,7 +27,9 @@ namespace GaussianBlur {
 	using namespace System::Drawing;
 	using namespace std;
 	
-	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size);
+	void gaussianKernel(double* kernel, int sizeRowsKernel, int sizeColumnsKernel, int sigma);
+
+	void thread_obj(Pixel_t* image, double* kernel, int i, int pixels_to_process, int chunk_size);
 			
 	/// <summary>
 	/// Summary for GaussianBlur
@@ -312,77 +314,14 @@ namespace GaussianBlur {
 			else
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-
-				// https://itecnote.com/tecnote/c-implementing-gaussian-blur-how-to-calculate-convolution-matrix-kernel/
-				// making gaussian kernel
+								
 				int sizeColumnsKernel = 7;
 				int sizeRowsKernel = 7;
 				int sigma = 50;
-				double* h1, * h2, * hg, * h;
 				int pointer;
 
-				h1 = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				h2 = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				hg = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				h = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-
-				double* upper = (double*) malloc(sizeof(double) * sizeRowsKernel);
-				pointer = 0;
-				for (double y = -((double)sizeRowsKernel - 1) / 2; y <= ((double)sizeRowsKernel - 1) / 2; y++)
-				{
-					*(upper + pointer++) = y;
-				}
-
-				double* down = (double*) malloc(sizeof(double) * sizeColumnsKernel);;
-				pointer = 0;
-				for (double x = -((double)sizeColumnsKernel - 1) / 2; x <= ((double)sizeColumnsKernel - 1) / 2; x++)
-				{
-					*(down + pointer++) = x;
-				}
-
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(h1 + (sizeColumnsKernel * x) + y) = *(upper + y);
-						*(h2 + (sizeColumnsKernel * x) + y) = *(upper + x);
-					}
-				}
-
-				double sumHg = 0;
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(hg + (sizeColumnsKernel * x) + y) = std::exp(-(std::pow(*(h1 + (sizeColumnsKernel * x) + y), 2) + std::pow(*(h2 + (sizeColumnsKernel * x) + y), 2)) / (2 * std::pow(sigma, 2)));
-						sumHg += *(hg + (sizeColumnsKernel * x) + y);
-					}
-				}
-
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(h + (sizeColumnsKernel * x) + y) = *(hg + (sizeColumnsKernel * x) + y) / sumHg;
-					}
-				}
-
-				free(h1);
-				free(h2);
-				free(hg);
-
-				// https://www.mathworks.com/help/matlab/ref/conv2.html
-				// rotate 180 desgrees the kernel
-				double* kernel = (double*) malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
-				for (int x = 0; x < sizeColumnsKernel; x++)
-				{
-					for (int y = 0; y < sizeRowsKernel; y++)
-					{
-						*(kernel + (sizeColumnsKernel * x) + y) = *(h + ((sizeColumnsKernel - x - 1) * sizeColumnsKernel) + (sizeRowsKernel - y - 1));
-					}
-				}
-
-				free(h);
+				double* kernel = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+				gaussianKernel(kernel, sizeRowsKernel, sizeColumnsKernel, sigma);
 
 				// matlab imfilter -> conv2 "same"
 				int sizeRowsOut = input->Height + sizeRowsKernel - 1;
@@ -418,6 +357,33 @@ namespace GaussianBlur {
 				}
 				input->UnlockBits(bmpData);
 
+				int totalPixels = input->Height * input->Width;
+				for (int pixel = 0; pixel < totalPixels; pixel++)
+				{
+					int RowBmp = pixel / input->Width;
+					int ColumnBmp = pixel - (RowBmp * input->Width);
+					for (int RowKernel = 0; RowKernel < sizeRowsKernel; RowKernel++)
+					{
+						for (int ColumnKernel = 0; ColumnKernel < sizeColumnsKernel; ColumnKernel++)
+						{
+							int j = RowBmp + RowKernel;
+							int k = ColumnBmp + ColumnKernel;
+
+							if (j >= 0 && j < sizeRowsOut && k >= 0 && k < sizeColumnsOut)
+							{
+								*(outR + (sizeColumnsOut * j) + k) = *(outR + (sizeColumnsOut * j) + k) +
+									(*(xyBmpR + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+								*(outG + (sizeColumnsOut * j) + k) = *(outG + (sizeColumnsOut * j) + k) +
+									(*(xyBmpG + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+								*(outB + (sizeColumnsOut * j) + k) = *(outB + (sizeColumnsOut * j) + k) +
+									(*(xyBmpB + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+							}
+						}
+					}
+
+				}
+
+				/*
 				for (int RowBmp = 0; RowBmp < input->Height; RowBmp++)
 				{
 					for (int ColumnBmp = 0; ColumnBmp < input->Width; ColumnBmp++)
@@ -442,6 +408,7 @@ namespace GaussianBlur {
 						}
 					}
 				}
+				*/
 
 				free(kernel);
 
@@ -523,6 +490,13 @@ namespace GaussianBlur {
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
+				int sizeColumnsKernel = 7;
+				int sizeRowsKernel = 7;
+				int sigma = 50;
+
+				double* kernel = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+				gaussianKernel(kernel, sizeRowsKernel, sizeColumnsKernel, sigma);
+
 				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
 				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadOnly,
 					input->PixelFormat);
@@ -550,7 +524,7 @@ namespace GaussianBlur {
 
 				for (int i = 0; i < num_threads; i++) {
 					int pixels_to_process = min(chunk_size, static_cast<int>(remaining_pixels));
-					threads[i] = thread(thread_obj, image, i, pixels_to_process, chunk_size);
+					threads[i] = thread(thread_obj, image, kernel, i, pixels_to_process, chunk_size);
 					remaining_pixels -= pixels_to_process;
 					if (remaining_pixels <= 0) {
 						break;
@@ -695,9 +669,83 @@ namespace GaussianBlur {
 			enableFilters();
 		}
 
-};
+	};
 
-	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size)
+	void gaussianKernel(double* kernel, int sizeRowsKernel, int sizeColumnsKernel, int sigma)
+	{
+		// https://itecnote.com/tecnote/c-implementing-gaussian-blur-how-to-calculate-convolution-matrix-kernel/
+		// making gaussian kernel
+
+		double* h1, * h2, * hg, * h;
+		int pointer;
+
+		h1 = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+		h2 = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+		hg = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+		h = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
+
+		double* upper = (double*) malloc(sizeof(double) * sizeRowsKernel);
+		pointer = 0;
+		for (double y = -((double)sizeRowsKernel - 1) / 2; y <= ((double)sizeRowsKernel - 1) / 2; y++)
+		{
+			*(upper + pointer++) = y;
+		}
+
+		double* down = (double*) malloc(sizeof(double) * sizeColumnsKernel);;
+		pointer = 0;
+		for (double x = -((double)sizeColumnsKernel - 1) / 2; x <= ((double)sizeColumnsKernel - 1) / 2; x++)
+		{
+			*(down + pointer++) = x;
+		}
+
+		for (int x = 0; x < sizeColumnsKernel; x++)
+		{
+			for (int y = 0; y < sizeRowsKernel; y++)
+			{
+				*(h1 + (sizeColumnsKernel * x) + y) = *(upper + y);
+				*(h2 + (sizeColumnsKernel * x) + y) = *(upper + x);
+			}
+		}
+
+		free(upper);
+		free(down);
+
+		double sumHg = 0;
+		for (int x = 0; x < sizeColumnsKernel; x++)
+		{
+			for (int y = 0; y < sizeRowsKernel; y++)
+			{
+				*(hg + (sizeColumnsKernel * x) + y) = std::exp(-(std::pow(*(h1 + (sizeColumnsKernel * x) + y), 2) + std::pow(*(h2 + (sizeColumnsKernel * x) + y), 2)) / (2 * std::pow(sigma, 2)));
+				sumHg += *(hg + (sizeColumnsKernel * x) + y);
+			}
+		}
+
+		for (int x = 0; x < sizeColumnsKernel; x++)
+		{
+			for (int y = 0; y < sizeRowsKernel; y++)
+			{
+				*(h + (sizeColumnsKernel * x) + y) = *(hg + (sizeColumnsKernel * x) + y) / sumHg;
+			}
+		}
+
+		free(h1);
+		free(h2);
+		free(hg);
+
+		// https://www.mathworks.com/help/matlab/ref/conv2.html
+		// rotate 180 desgrees the kernel
+		for (int x = 0; x < sizeColumnsKernel; x++)
+		{
+			for (int y = 0; y < sizeRowsKernel; y++)
+			{
+				*(kernel + (sizeColumnsKernel * x) + y) = *(h + ((sizeColumnsKernel - x - 1) * sizeColumnsKernel) + (sizeRowsKernel - y - 1));
+			}
+		}
+
+		free(h);
+	};
+
+	void thread_obj(Pixel_t* image, double* kernel, int i, int pixels_to_process, int chunk_size)
 	{
 		int start = i * chunk_size;
 		for (int j = start; j < start + pixels_to_process; j++) {
