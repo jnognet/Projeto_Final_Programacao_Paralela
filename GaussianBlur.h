@@ -17,7 +17,7 @@
 #include "GrayScaleCuda.h"
 #include "GrayScaleHalide.h"
 
-namespace GrayScale {
+namespace GaussianBlur {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -30,12 +30,12 @@ namespace GrayScale {
 	void thread_obj(Pixel_t* image, int i, int pixels_to_process, int chunk_size);
 			
 	/// <summary>
-	/// Summary for GrayScale
+	/// Summary for GaussianBlur
 	/// </summary>
-	public ref class GrayScale : public System::Windows::Forms::Form
+	public ref class GaussianBlur : public System::Windows::Forms::Form
 	{
 	public:
-		GrayScale(void)
+		GaussianBlur(void)
 		{
 			InitializeComponent();
 			//
@@ -47,7 +47,7 @@ namespace GrayScale {
 		/// <summary>
 		/// Clean up any resources being used.
 		/// </summary>
-		~GrayScale()
+		~GaussianBlur()
 		{
 			if (components)
 			{
@@ -84,7 +84,7 @@ namespace GrayScale {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(GrayScale::typeid));
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(GaussianBlur::typeid));
 			this->filterhalidegpubutton = (gcnew System::Windows::Forms::Button());
 			this->filterhalidecpubutton = (gcnew System::Windows::Forms::Button());
 			this->filtercudabutton = (gcnew System::Windows::Forms::Button());
@@ -109,7 +109,8 @@ namespace GrayScale {
 			this->filterhalidegpubutton->TabIndex = 6;
 			this->filterhalidegpubutton->Text = L"Filter with Halide (GPU)";
 			this->filterhalidegpubutton->UseVisualStyleBackColor = true;
-			this->filterhalidegpubutton->Click += gcnew System::EventHandler(this, &GrayScale::filterhalidegpubutton_Click);
+			this->filterhalidegpubutton->Visible = false;
+			this->filterhalidegpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filterhalidegpubutton_Click);
 			// 
 			// filterhalidecpubutton
 			// 
@@ -120,7 +121,8 @@ namespace GrayScale {
 			this->filterhalidecpubutton->TabIndex = 5;
 			this->filterhalidecpubutton->Text = L"Filter with Halide (CPU)";
 			this->filterhalidecpubutton->UseVisualStyleBackColor = true;
-			this->filterhalidecpubutton->Click += gcnew System::EventHandler(this, &GrayScale::filterhalidecpubutton_Click);
+			this->filterhalidecpubutton->Visible = false;
+			this->filterhalidecpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filterhalidecpubutton_Click);
 			// 
 			// filtercudabutton
 			// 
@@ -131,7 +133,7 @@ namespace GrayScale {
 			this->filtercudabutton->TabIndex = 4;
 			this->filtercudabutton->Text = L"Filter with CUDA";
 			this->filtercudabutton->UseVisualStyleBackColor = true;
-			this->filtercudabutton->Click += gcnew System::EventHandler(this, &GrayScale::filtercudabutton_Click);
+			this->filtercudabutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercudabutton_Click);
 			// 
 			// filtercpumultithreadbutton
 			// 
@@ -142,7 +144,7 @@ namespace GrayScale {
 			this->filtercpumultithreadbutton->TabIndex = 3;
 			this->filtercpumultithreadbutton->Text = L"Filter with CPU (multithread)";
 			this->filtercpumultithreadbutton->UseVisualStyleBackColor = true;
-			this->filtercpumultithreadbutton->Click += gcnew System::EventHandler(this, &GrayScale::filtercpumultithreadbutton_Click);
+			this->filtercpumultithreadbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercpumultithreadbutton_Click);
 			// 
 			// savebutton
 			// 
@@ -153,7 +155,7 @@ namespace GrayScale {
 			this->savebutton->TabIndex = 7;
 			this->savebutton->Text = L"Save";
 			this->savebutton->UseVisualStyleBackColor = true;
-			this->savebutton->Click += gcnew System::EventHandler(this, &GrayScale::savebutton_Click);
+			this->savebutton->Click += gcnew System::EventHandler(this, &GaussianBlur::savebutton_Click);
 			// 
 			// filtercpubutton
 			// 
@@ -164,7 +166,7 @@ namespace GrayScale {
 			this->filtercpubutton->TabIndex = 2;
 			this->filtercpubutton->Text = L"Filter with CPU";
 			this->filtercpubutton->UseVisualStyleBackColor = true;
-			this->filtercpubutton->Click += gcnew System::EventHandler(this, &GrayScale::filtercpubutton_Click);
+			this->filtercpubutton->Click += gcnew System::EventHandler(this, &GaussianBlur::filtercpubutton_Click);
 			// 
 			// outputpicturebox
 			// 
@@ -196,7 +198,7 @@ namespace GrayScale {
 			this->loadbutton->TabIndex = 1;
 			this->loadbutton->Text = L"Load";
 			this->loadbutton->UseVisualStyleBackColor = true;
-			this->loadbutton->Click += gcnew System::EventHandler(this, &GrayScale::loadbutton_Click);
+			this->loadbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::loadbutton_Click);
 			// 
 			// textBox
 			// 
@@ -217,9 +219,9 @@ namespace GrayScale {
 			this->clearbutton->TabIndex = 12;
 			this->clearbutton->Text = L"Clear";
 			this->clearbutton->UseVisualStyleBackColor = true;
-			this->clearbutton->Click += gcnew System::EventHandler(this, &GrayScale::clearbutton_Click);
+			this->clearbutton->Click += gcnew System::EventHandler(this, &GaussianBlur::clearbutton_Click);
 			// 
-			// GrayScale
+			// GaussianBlur
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
@@ -239,9 +241,9 @@ namespace GrayScale {
 			//this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
-			this->Name = L"GrayScale";
+			this->Name = L"GaussianBlur";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"GrayScale Filter";
+			this->Text = L"Gaussian Blur Filter";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->outputpicturebox))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->inputpicturebox))->EndInit();
 			this->ResumeLayout(false);
@@ -305,68 +307,168 @@ namespace GrayScale {
 		{
 			disableFilters();
 			Bitmap^ input = dynamic_cast<Bitmap^>(inputpicturebox->Image->Clone());
-			if (input->PixelFormat == Drawing::Imaging::PixelFormat::Format8bppIndexed) {
-				MessageBox::Show("Grayscaled image", "Warning!", MessageBoxButtons::OK);
+			if (input->GetPixelFormatSize(input->PixelFormat) < 24) {
+				MessageBox::Show("Image using only one channel", "Warning!", MessageBoxButtons::OK);
 			}
 			else
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-				/*
-					Bitmap^ output = gcnew System::Drawing::Bitmap(bmp->Width, bmp->Height, bmp->PixelFormat);
-					output->SetResolution(bmp->HorizontalResolution, bmp->VerticalResolution);
-					for (int x = 0; x < bmp->Width; x++)
-					{
-						for (int y = 0; y < bmp->Height; y++)
-						{
-							Color pixelsrc = bmp->GetPixel(x, y);
-							int value = (0.299 * pixelsrc.R) + (0.587 * pixelsrc.G) + (0.114 * pixelsrc.B);
-							Color c = Color::FromArgb(value, value, value);
-							output->SetPixel(x, y, c);
-						}
-					}
-				*/
 
-				/*
-					System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, bmp->Width, bmp->Height);
-					System::Drawing::Imaging::BitmapData^ bmpData = bmp->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
-						bmp->PixelFormat);
+				// https://itecnote.com/tecnote/c-implementing-gaussian-blur-how-to-calculate-convolution-matrix-kernel/
+				// making gaussian kernel
+				int sizeColumnsKernel = 4;
+				int sizeRowsKernel = 4;
+				int sigma = 5;
+				double* h1, * h2, * hg, * h;
+				int pointer;
 
-					IntPtr^ pbm = bmpData->Scan0;
-					Byte* imagePointer1 = (Byte*)pbm->ToPointer();
+				h1 = (double*)malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
+				h2 = (double*)malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
+				hg = (double*)malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
+				h = (double*)malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
 
-					for (int i = 0; i < bmp->Height; i++)
-					{
-						for (int j = 0; j < bmp->Width; j++)
-						{
-							int value = (0.299 * imagePointer1[2]) + (0.587 * imagePointer1[1]) + (0.114 * imagePointer1[0]);
-							imagePointer1[0] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1[1] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1[2] = (Byte)std::clamp(value, 0, 255);
-							imagePointer1 += 3;
-						}
-						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
-					}
-					bmp->UnlockBits(bmpData);
-				*/
-
-				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
-				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadWrite,
-					input->PixelFormat);
-
-				IntPtr^ pbm = bmpData->Scan0;
-				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
-
-				for (int i = 0; i < input->Height * input->Width; i++)
+				double* upper = (double*)malloc(sizeof(double) * sizeRowsKernel);
+				pointer = 0;
+				for (double y = -((double)sizeRowsKernel - 1) / 2; y <= ((double)sizeRowsKernel - 1) / 2; y++)
 				{
-					unsigned char value = (0.299 * imagePointer1[2]) + (0.587 * imagePointer1[1]) + (0.114 * imagePointer1[0]);
-					imagePointer1[0] = value;
-					imagePointer1[1] = value;
-					imagePointer1[2] = value;
-					imagePointer1 += 3;
+					*(upper + pointer++) = y;
 				}
-				input->UnlockBits(bmpData);
 
-				outputpicturebox->Image = input;
+				double* down = (double*)malloc(sizeof(double) * sizeColumnsKernel);;
+				pointer = 0;
+				for (double x = -((double)sizeColumnsKernel - 1) / 2; x <= ((double)sizeColumnsKernel - 1) / 2; x++)
+				{
+					*(down + pointer++) = x;
+				}
+
+				for (int x = 0; x < sizeColumnsKernel; x++)
+				{
+					for (int y = 0; y < sizeRowsKernel; y++)
+					{
+						*(h1 + (sizeColumnsKernel * x) + y) = *(upper + y);
+						*(h2 + (sizeColumnsKernel * x) + y) = *(upper + x);
+					}
+				}
+
+				double sumHg = 0;
+				for (int x = 0; x < sizeColumnsKernel; x++)
+				{
+					for (int y = 0; y < sizeRowsKernel; y++)
+					{
+						*(hg + (sizeColumnsKernel * x) + y) = std::exp(-(std::pow(*(h1 + (sizeColumnsKernel * x) + y), 2) + std::pow(*(h2 + (sizeColumnsKernel * x) + y), 2)) / (2 * std::pow(sigma, 2)));
+						sumHg += *(hg + (sizeColumnsKernel * x) + y);
+					}
+				}
+
+				for (int x = 0; x < sizeColumnsKernel; x++)
+				{
+					for (int y = 0; y < sizeRowsKernel; y++)
+					{
+						*(h + (sizeColumnsKernel * x) + y) = *(hg + (sizeColumnsKernel * x) + y) / sumHg;
+					}
+				}
+
+				free(h1);
+				free(h2);
+				free(hg);
+
+				// https://www.mathworks.com/help/matlab/ref/conv2.html
+				// rotate 180 desgrees the kernel
+				double* kernel = (double*)malloc(sizeof(double) * sizeColumnsKernel * sizeRowsKernel);
+				for (int x = 0; x < sizeColumnsKernel; x++)
+				{
+					for (int y = 0; y < sizeRowsKernel; y++)
+					{
+						*(kernel + (sizeColumnsKernel * x) + y) = *(h + ((sizeColumnsKernel - x - 1) * sizeColumnsKernel) + (sizeRowsKernel - y - 1));
+					}
+				}
+
+				free(h);
+
+				// matlab imfilter -> conv2 "same"
+				int sizeRowsOut = input->Height + sizeRowsKernel - 1;
+				int sizeColumnsOut = input->Width + sizeColumnsKernel - 1;
+				int channels = Image::GetPixelFormatSize(input->PixelFormat) / 8;
+
+				double* xyBmpR = (double*)calloc(input->Width * input->Height, sizeof(double));
+				double* xyBmpG = (double*)calloc(input->Width * input->Height, sizeof(double));
+				double* xyBmpB = (double*)calloc(input->Width * input->Height, sizeof(double));
+
+				double* outR = (double*)calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+				double* outG = (double*)calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+				double* outB = (double*)calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+
+				pointer = 0;
+				for (int y = 0; y < input->Height; y++)
+				{
+					for (int x = 0; x < input->Width; x++)
+					{
+						Color c = input->GetPixel(x, y);
+						*(xyBmpR + pointer) = c.R;
+						*(xyBmpG + pointer) = c.G;
+						*(xyBmpB + pointer) = c.B;
+						pointer++;
+					}
+				}
+
+				for (int RowBmp = 0; RowBmp < input->Height; RowBmp++)
+				{
+					for (int ColumnBmp = 0; ColumnBmp < input->Width; ColumnBmp++)
+					{
+						for (int RowKernel = 0; RowKernel < sizeRowsKernel; RowKernel++)
+						{
+							for (int ColumnKernel = 0; ColumnKernel < sizeColumnsKernel; ColumnKernel++)
+							{
+								int j = RowBmp + RowKernel;
+								int k = ColumnBmp + ColumnKernel;
+
+								if (j >= 0 && j < sizeRowsOut && k >= 0 && k < sizeColumnsOut)
+								{
+									*(outR + (sizeColumnsOut * j) + k) = *(outR + (sizeColumnsOut * j) + k) +
+										(*(xyBmpR + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+									*(outG + (sizeColumnsOut * j) + k) = *(outG + (sizeColumnsOut * j) + k) +
+										(*(xyBmpG + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+									*(outB + (sizeColumnsOut * j) + k) = *(outB + (sizeColumnsOut * j) + k) +
+										(*(xyBmpB + (input->Width * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+								}
+							}
+						}
+					}
+				}
+
+				free(kernel);
+
+				// round & clamp
+				for (int x = 0; x < sizeRowsOut; x++)
+				{
+					for (int y = 0; y < sizeColumnsOut; y++)
+					{
+						*(outR + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outR + (sizeColumnsOut * x) + y)), 0, 255);
+						*(outG + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outG + (sizeColumnsOut * x) + y)), 0, 255);
+						*(outB + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outB + (sizeColumnsOut * x) + y)), 0, 255);
+					}
+				}
+
+				int first_w = floor(sizeColumnsKernel / 2);
+				int first_h = floor(sizeRowsKernel / 2);
+
+				Bitmap^ output = gcnew System::Drawing::Bitmap(input->Width, input->Height, input->PixelFormat);
+				output->SetResolution(input->HorizontalResolution, input->VerticalResolution);
+
+				for (int y = 0; y < input->Height; y++)
+				{
+					for (int x = 0; x < input->Width; x++)
+					{
+						Color c = Color::FromArgb(*(outR + (sizeColumnsOut * (y + first_h)) + x + first_w), *(outG + (sizeColumnsOut * (y + first_h)) + x + first_w), *(outB + (sizeColumnsOut * (y + first_h)) + x + first_w));
+						output->SetPixel(x, y, c);
+					}
+				}
+
+				free(outR);
+				free(outG);
+				free(outB);
+
+				outputpicturebox->Image = output;
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
 				textBox->Text = textBox->Text + "Filtered using CPU in " + time_span.count() + " seconds.\r\n";

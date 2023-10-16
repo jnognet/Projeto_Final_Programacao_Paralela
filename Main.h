@@ -3,6 +3,7 @@
 #include "Credits.h"
 #include "Webcam.h"
 #include "GrayScale.h"
+#include "GaussianBlur.h"
 
 namespace Main {
 
@@ -71,6 +72,7 @@ namespace Main {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Main::typeid));
 			this->creditsbutton = (gcnew System::Windows::Forms::Button());
 			this->webcambutton = (gcnew System::Windows::Forms::Button());
 			this->grayscalebutton = (gcnew System::Windows::Forms::Button());
@@ -124,13 +126,13 @@ namespace Main {
 			// 
 			this->sobelbutton->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Left | System::Windows::Forms::AnchorStyles::Right));
 			this->sobelbutton->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->sobelbutton->Enabled = false;
 			this->sobelbutton->Location = System::Drawing::Point(34, 207);
 			this->sobelbutton->Name = L"sobelbutton";
 			this->sobelbutton->Size = System::Drawing::Size(771, 53);
 			this->sobelbutton->TabIndex = 1;
 			this->sobelbutton->Text = L"Sobel Filter";
 			this->sobelbutton->UseVisualStyleBackColor = true;
-			this->sobelbutton->Enabled = false;
 			this->sobelbutton->Click += gcnew System::EventHandler(this, &Main::sobelbutton_Click);
 			// 
 			// gaussianbutton
@@ -143,7 +145,6 @@ namespace Main {
 			this->gaussianbutton->TabIndex = 3;
 			this->gaussianbutton->Text = L"Gaussian Blur Filter";
 			this->gaussianbutton->UseVisualStyleBackColor = true;
-			this->gaussianbutton->Enabled = false;
 			this->gaussianbutton->Click += gcnew System::EventHandler(this, &Main::gaussianbutton_Click);
 			// 
 			// ufacpicturebox
@@ -214,12 +215,17 @@ namespace Main {
 		GrayScale::GrayScale^ grayscale = gcnew GrayScale::GrayScale;
 		grayscale->ShowDialog();
 	}
+
 	private: System::Void sobelbutton_Click(System::Object^ sender, System::EventArgs^ e) 
 	{
 	}
+
 	private: System::Void gaussianbutton_Click(System::Object^ sender, System::EventArgs^ e) 
 	{
+		GaussianBlur::GaussianBlur^ gaussianblur = gcnew GaussianBlur::GaussianBlur;
+		gaussianblur->ShowDialog();
 	}
+
 	private: System::Void webcambutton_Click(System::Object^ sender, System::EventArgs^ e) 
 	{
 		Webcam::Webcam^ webcam = gcnew Webcam::Webcam;
