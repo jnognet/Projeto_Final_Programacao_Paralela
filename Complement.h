@@ -268,7 +268,7 @@ namespace Complement {
 					msg += image->HorizontalResolution + " ppi h, ";
 					msg += image->VerticalResolution + " ppi v, ";
 					msg += image->PixelFormat.ToString() + ", ";
-					msg += image->GetPixelFormatSize(image->PixelFormat) + " bits";
+					msg += Image::GetPixelFormatSize(image->PixelFormat) + " bits";
 					textBox->Text = textBox->Text + "Image loaded: " + 
 						openFileDialog->FileName + " (" +
 							msg +

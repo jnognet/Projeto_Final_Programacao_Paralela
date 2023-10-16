@@ -29,7 +29,13 @@ namespace GaussianBlur {
 	
 	void gaussianKernel(double* kernel, int sizeRowsKernel, int sizeColumnsKernel, int sigma);
 
-	void thread_obj(Pixel_t* image, double* kernel, int i, int pixels_to_process, int chunk_size);
+	void thread_obj(double* xyBmpR, double* xyBmpG, double* xyBmpB,
+					int bmpWidth,
+					double* outR, double* outG, double* outB,
+					int sizeRowsOut, int sizeColumnsOut,
+					double* kernel,
+					int sizeRowsKernel, int sizeColumnsKernel,
+					int i, int pixels_to_process, int chunk_size);
 			
 	/// <summary>
 	/// Summary for GaussianBlur
@@ -271,7 +277,7 @@ namespace GaussianBlur {
 					msg += image->HorizontalResolution + " ppi h, ";
 					msg += image->VerticalResolution + " ppi v, ";
 					msg += image->PixelFormat.ToString() + ", ";
-					msg += image->GetPixelFormatSize(image->PixelFormat) + " bits";
+					msg += Image::GetPixelFormatSize(image->PixelFormat) + " bits";
 					textBox->Text = textBox->Text + "Image loaded: " + 
 						openFileDialog->FileName + " (" +
 							msg +
@@ -315,10 +321,9 @@ namespace GaussianBlur {
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 								
-				int sizeColumnsKernel = 7;
-				int sizeRowsKernel = 7;
-				int sigma = 50;
-				int pointer;
+				int sizeColumnsKernel = 5;
+				int sizeRowsKernel = 5;
+				int sigma = 1;
 
 				double* kernel = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
 				gaussianKernel(kernel, sizeRowsKernel, sizeColumnsKernel, sigma);
@@ -326,8 +331,7 @@ namespace GaussianBlur {
 				// matlab imfilter -> conv2 "same"
 				int sizeRowsOut = input->Height + sizeRowsKernel - 1;
 				int sizeColumnsOut = input->Width + sizeColumnsKernel - 1;
-				int channels = Image::GetPixelFormatSize(input->PixelFormat) / 8;
-
+				
 				double* xyBmpR = (double*) calloc(input->Width * input->Height, sizeof(double));
 				double* xyBmpG = (double*) calloc(input->Width * input->Height, sizeof(double));
 				double* xyBmpB = (double*) calloc(input->Width * input->Height, sizeof(double));
@@ -342,7 +346,7 @@ namespace GaussianBlur {
 				IntPtr^ pbm = bmpData->Scan0;
 				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
 
-				pointer = 0;
+				int pointer = 0;
 				for (int y = 0; y < input->Height; y++)
 				{
 					for (int x = 0; x < input->Width; x++)
@@ -380,21 +384,13 @@ namespace GaussianBlur {
 							}
 						}
 					}
-
+					// round & clamp
+					*(outR + (sizeColumnsOut * RowBmp) + ColumnBmp) = std::clamp((int) round(*(outR + (sizeColumnsOut * RowBmp) + ColumnBmp)), 0, 255);
+					*(outG + (sizeColumnsOut * RowBmp) + ColumnBmp) = std::clamp((int) round(*(outG + (sizeColumnsOut * RowBmp) + ColumnBmp)), 0, 255);
+					*(outB + (sizeColumnsOut * RowBmp) + ColumnBmp) = std::clamp((int) round(*(outB + (sizeColumnsOut * RowBmp) + ColumnBmp)), 0, 255);
 				}
 
 				free(kernel);
-
-				// round & clamp
-				for (int x = 0; x < sizeRowsOut; x++)
-				{
-					for (int y = 0; y < sizeColumnsOut; y++)
-					{
-						*(outR + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outR + (sizeColumnsOut * x) + y)), 0, 255);
-						*(outG + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outG + (sizeColumnsOut * x) + y)), 0, 255);
-						*(outB + (sizeColumnsOut * x) + y) = std::clamp((int)round(*(outB + (sizeColumnsOut * x) + y)), 0, 255);
-					}
-				}
 
 				int first_w = floor(sizeColumnsKernel / 2);
 				int first_h = floor(sizeRowsKernel / 2);
@@ -463,12 +459,24 @@ namespace GaussianBlur {
 			{
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-				int sizeColumnsKernel = 7;
-				int sizeRowsKernel = 7;
+				int sizeColumnsKernel = 15;
+				int sizeRowsKernel = 15;
 				int sigma = 50;
 
 				double* kernel = (double*) malloc(sizeof(double) * sizeRowsKernel * sizeColumnsKernel);
 				gaussianKernel(kernel, sizeRowsKernel, sizeColumnsKernel, sigma);
+
+				// matlab imfilter -> conv2 "same"
+				int sizeRowsOut = input->Height + sizeRowsKernel - 1;
+				int sizeColumnsOut = input->Width + sizeColumnsKernel - 1;
+
+				double* xyBmpR = (double*) calloc(input->Width * input->Height, sizeof(double));
+				double* xyBmpG = (double*) calloc(input->Width * input->Height, sizeof(double));
+				double* xyBmpB = (double*) calloc(input->Width * input->Height, sizeof(double));
+
+				double* outR = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+				double* outG = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
+				double* outB = (double*) calloc(sizeRowsOut * sizeColumnsOut, sizeof(double));
 
 				System::Drawing::Rectangle rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
 				System::Drawing::Imaging::BitmapData^ bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::ReadOnly,
@@ -476,17 +484,18 @@ namespace GaussianBlur {
 				IntPtr^ pbm = bmpData->Scan0;
 				Byte* imagePointer1 = (Byte*)pbm->ToPointer();
 
-				Pixel_t* image = (Pixel_t*) malloc(input->Width * input->Height * sizeof(Pixel_t));
-				if (image != NULL) {
-					int pointer = 0;
-					for (int y = 0; y < input->Height; y++) {
-						for (int x = 0; x < input->Width; x++) {
-							Pixel_t outpixel = { imagePointer1[2], imagePointer1[1], imagePointer1[0] };
-							*(image + pointer++) = outpixel;
-							imagePointer1 += 3;
-						}
-						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
+				int pointer = 0;
+				for (int y = 0; y < input->Height; y++)
+				{
+					for (int x = 0; x < input->Width; x++)
+					{
+						*(xyBmpR + pointer) = imagePointer1[2];
+						*(xyBmpG + pointer) = imagePointer1[1];
+						*(xyBmpB + pointer) = imagePointer1[0];
+						imagePointer1 += 3;
+						pointer++;
 					}
+					imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
 				}
 				input->UnlockBits(bmpData);
 
@@ -497,7 +506,13 @@ namespace GaussianBlur {
 
 				for (int i = 0; i < num_threads; i++) {
 					int pixels_to_process = min(chunk_size, static_cast<int>(remaining_pixels));
-					threads[i] = thread(thread_obj, image, kernel, i, pixels_to_process, chunk_size);
+					threads[i] = thread(thread_obj, xyBmpR, xyBmpG, xyBmpB, 
+													input->Width,
+													outR, outG, outB,
+													sizeRowsOut, sizeColumnsOut,
+													kernel, 
+													sizeRowsKernel, sizeColumnsKernel,
+													i, pixels_to_process, chunk_size);
 					remaining_pixels -= pixels_to_process;
 					if (remaining_pixels <= 0) {
 						break;
@@ -508,26 +523,32 @@ namespace GaussianBlur {
 					thread.join();
 				}
 
+				free(kernel);
+
+				int first_w = floor(sizeColumnsKernel / 2);
+				int first_h = floor(sizeRowsKernel / 2);
+
 				rec = System::Drawing::Rectangle(0, 0, input->Width, input->Height);
 				bmpData = input->LockBits(rec, System::Drawing::Imaging::ImageLockMode::WriteOnly, input->PixelFormat);
 				pbm = bmpData->Scan0;
 				imagePointer1 = (Byte*)pbm->ToPointer();
 
-				if (image != NULL) {
-					int pointer = 0;
-					for (int y = 0; y < input->Height; y++) {
-						for (int x = 0; x < input->Width; x++) {
-							Pixel_t inpixel = *(image + pointer++);
-							imagePointer1[2] = inpixel.R;
-							imagePointer1[1] = inpixel.G;
-							imagePointer1[0] = inpixel.B;
-							imagePointer1 += 3;
-						}
-						imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
+				for (int y = 0; y < input->Height; y++)
+				{
+					for (int x = 0; x < input->Width; x++)
+					{
+						imagePointer1[2] = *(outR + (sizeColumnsOut * (y + first_h)) + x + first_w);
+						imagePointer1[1] = *(outG + (sizeColumnsOut * (y + first_h)) + x + first_w);
+						imagePointer1[0] = *(outB + (sizeColumnsOut * (y + first_h)) + x + first_w);
+						imagePointer1 += 3;
 					}
-					free(image);
+					imagePointer1 += (bmpData->Stride - (bmpData->Width * 3));
 				}
 				input->UnlockBits(bmpData);
+
+				free(outR);
+				free(outG);
+				free(outB);
 
 				outputpicturebox->Image = input;
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
@@ -718,17 +739,39 @@ namespace GaussianBlur {
 		free(h);
 	};
 
-	void thread_obj(Pixel_t* image, double* kernel, int i, int pixels_to_process, int chunk_size)
+	void thread_obj(double* xyBmpR, double* xyBmpG, double* xyBmpB, 
+					int bmpWidth,
+					double* outR, double* outG, double* outB,
+					int sizeRowsOut, int sizeColumnsOut,
+					double* kernel, 
+					int sizeRowsKernel, int sizeColumnsKernel,
+					int i, int pixels_to_process, int chunk_size)
 	{
 		int start = i * chunk_size;
-		for (int j = start; j < start + pixels_to_process; j++) {
-			Pixel_t inpixel = *(image + j);
-			int value = (0.299 * inpixel.R) + (0.587 * inpixel.G) + (0.114 * inpixel.B);
-			inpixel.R = value;
-			inpixel.G = value;
-			inpixel.B = value;
-			*(image + j) = inpixel;
+		for (int j = start; j < start + pixels_to_process; j++)
+		{
+			int RowBmp = j / bmpWidth;
+			int ColumnBmp = j - (RowBmp * bmpWidth);
+			for (int RowKernel = 0; RowKernel < sizeRowsKernel; RowKernel++)
+			{
+				for (int ColumnKernel = 0; ColumnKernel < sizeColumnsKernel; ColumnKernel++)
+				{
+					int j = RowBmp + RowKernel;
+					int k = ColumnBmp + ColumnKernel;
+
+					if (j >= 0 && j < sizeRowsOut && k >= 0 && k < sizeColumnsOut)
+					{
+						*(outR + (sizeColumnsOut * j) + k) = *(outR + (sizeColumnsOut * j) + k) +
+							(*(xyBmpR + (bmpWidth * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+						*(outG + (sizeColumnsOut * j) + k) = *(outG + (sizeColumnsOut * j) + k) +
+							(*(xyBmpG + (bmpWidth * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+						*(outB + (sizeColumnsOut * j) + k) = *(outB + (sizeColumnsOut * j) + k) +
+							(*(xyBmpB + (bmpWidth * RowBmp) + ColumnBmp) * *(kernel + (sizeRowsKernel * RowKernel) + ColumnKernel));
+					}
+				}
+			}
 		}
+
 	};
 
 }
